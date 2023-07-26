@@ -1,0 +1,82 @@
+<?php $this->load->view('Page/template/header'); ?>
+
+<link href="assets/css/jquery.datetimepicker.css" rel="stylesheet" type="text/css">
+
+<div class="container mt-3">
+	<div class="banner_inner banner_inner3">
+		<img alt="Personal Styling | StyleBuddy"  alt="StyleBuddy"  src="<?= base_url()?>assets/images/new/emp_banner.jpg" class="img-fluid">
+		<div class="top_title3">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-10 offset-sm-1 top_search">
+						<div class="row">
+							<div class="col-sm-7">
+								<div class="input-group">
+								    <input type="text" class="form-control" placeholder="Search by tags, services and experts name...">
+								  </div>
+							</div>
+							<div class="col-sm-3">
+								<div class="input-group">
+								    <input type="text" class="form-control" placeholder="select service location">
+								  </div>
+							</div>
+							<div class="col-sm-2">
+								<div class="input-group">
+								    <input type="button" class="btn" value="SEARCH">
+								  </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="middle_part pt-4">
+	<div class="container">
+			<div class="row">
+				<div class="col-sm-8 sr_detail mt-3">
+					<h5>COMPLETE WARDROBE AUDIT</h5>
+	      			<p>Let our consultants help you de-clutter and re-organise your closet . You will have closet suggestions that will work for you through the entire season and beyond.Analyse, Classify,Organise and Refresh.</p>
+	      			<hr>
+	      			<h6>Service Details</h6>
+	      			<ul class="sd">
+						<li>60 minutes&nbsp;In personal Style &amp; Lifestyle evaluation</li>
+						<li>Half a day of Wardrobe Edit &nbsp;[3-4 Hours]</li>
+						<li>Limited Colour analysis- analysis of your skin, hair and eyes' undertones. Advice on how to compliment your colouring based on the clothes you choose to wear.</li>
+						<li>Body type evaluation- Analysis of body type and advice on how to dress for your body shape and compliment your proportions.</li>
+						<li>Closet cleanse-&nbsp;De-clutter and re-organize your closet. Re-style pieces.&nbsp;Donate ,sell clothes that no longer works.</li>
+						<li>Wardrobe Plan- Create a shopping list of different items needed to complete your wardrobe.&nbsp;</li>
+						<li>Includes GST @18%</li>
+					</ul> 
+				</div>
+				<div class="col-sm-4">
+					<div class="service_form">
+						<div id="filters" class="form-group boot_sp">
+              				<input type="text" name="filter-date" id="filter-date" class="form-control box_in3">
+              				<label class="form-control-placeholder2" for="fname">Counsulting time</label>
+              			</div>
+          				<hr>
+          				<div class="row">
+          					<div class="col-sm-6 text-left"><b>PRICE</b></div>
+          					<div class="col-sm-6 text-right"><b>₹899.00/</b></div>
+          				</div>
+          				<hr>
+          				<input type="button" name="" value="CHECKOUT" class="btn_check">
+      				</div>
+				</div>
+			</div>
+
+	</div>
+</div>
+
+<?php $this->load->view('Page/template/footer'); ?>
+
+<script type="text/javascript" src="assets/js/jquery.datetimepicker.full.js"></script>
+<script type="text/javascript">
+	jQuery(document).ready(function () {
+      'use strict';
+      jQuery('#filter-date').datetimepicker();
+    });
+</script>
