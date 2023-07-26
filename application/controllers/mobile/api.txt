@@ -1,0 +1,33 @@
+$curlPost = array();
+$curlPost['email'] = API_AUTH_EMAIL;
+$curlPost['password'] = API_AUTH_PASSWORD;
+		
+Post Api
+Base Url: https://dndtestserver.com/freelancer/beta/mobile/Api_v_1/
+
+15.countries
+1. category => key:featured
+2. skills => key:
+9. browsejobs
+	user filer key: category,skills,country,search 
+	in which category,skills,country will be qouma seperated just like development-it,abc;
+10.browsejobs_detail =>key: jobs
+
+3. freelancer 
+	user filer key: category,skills,country,search 
+	in which category,skills,country will be qouma seperated just like development-it,abc;
+
+4. freelancer_detail => key: details
+5. freelancer_feedback_submit => key: from_user_id,user_id,name,email_id,title,comment,rating
+6. bid_submit => key: job_id_user,job_id,email_id,user_id,budget,created_at,updated_at
+7. fetch_user_chat_history => key: from_user_id,job_id,to_user_id
+8. insert_chat => key: from_user_id,job_id,to_user_id,chat_message
+
+11.posts => key: cat_slug
+12.testimonial
+13.blogs
+14.how_it_works
+16.currency
+17.budget_range
+18.project_type
+19.searchfreelacer

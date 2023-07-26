@@ -1,0 +1,55 @@
+API:
+1.countries
+Uses:
+this is for show country list
+
+2. skills: 
+Uses: 
+if you wnat to show speciality (just like c++ developer, Java developer, .net developer, Android Developer ) and how many freelancers of thair skills.
+
+3. category: 
+Uses:
+if you wnat to show categroy just like PHOTOGRAPHER,MAKE-UP ARTISTS,DENTIST,WRITING
+
+4. browsejobs:
+Uses: 
+If you want to show jobs then you can use it and also filted by category(category slug just like writing,make-up-artists,customer-support please see category api),skills (skill name just like .NET,WEB DEVELOPMENT please see skills api)
+- other api call with this api skills,category
+
+5. browsejobs_detail: 
+key: jobs
+Uses: 
+If you want to show job detail then you should passed id (Please see browsejobs api ) with jobs key.
+
+6. freelancer
+Uses: 
+If you want to show freelancer then you can use it and also filted by category(category slug just like writing,make-up-artists,customer-support please see category api),skills (skill name just like .NET,WEB DEVELOPMENT please see skills api) and country (country default_name Australia,India Please see country api)
+- other api call with this api countries,skills,category
+
+7. freelancer_detail
+key: details 
+Uses: 
+If you want to show freelancer detail then you should passed id (Please see freelancer api ) with details key.
+
+
+
+8. post_project_submit
+Uses:
+if job provider post a job then use it
+key: name, category, sub_category, job_country, currency, budget, expected_days, project_type, skills, user_id, about, details, keywords
+
+- other api call with this api countries,skills,category,budget_range,project_type,currency
+
+9. login 
+key: user_email, user_passord
+
+10. register
+key: user_email, user_password, first_name, middle_name, last_name,phone
+
+11. forgot_password
+	key: user_email
+
+12. change_password
+	key: new_password,otp
+
+	
