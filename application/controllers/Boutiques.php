@@ -2,8 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Boutiques extends MY_Controller {
-    
-    function __construct()
+        function __construct()
 	{
         parent::__construct();
         $this->load->model('Page_Model');
