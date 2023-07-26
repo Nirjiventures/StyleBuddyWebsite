@@ -1,0 +1,3679 @@
+<?php
+
+
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+
+
+class Cart extends MY_Controller {
+
+
+
+	function __construct() {
+
+
+
+        parent::__construct();
+
+
+
+		$this->currLanguage = $this->session->userdata('site_lang');
+
+
+
+		$this->currCurrency = $this->session->userdata('site_currency');
+
+
+
+    }
+
+
+
+    public function index(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+		
+
+
+
+		$this->cartupdate();
+
+
+
+		$cartArray = $this->common_model->get_all_details('user_cart',array('user_id'=>$user_id))->result_array();
+
+
+
+
+
+
+
+		$user_cart_session = $this->common_model->get_all_details('user_cart_session',array('user_id'=>$user_id))->row_array();
+
+
+
+		$this->data['user_cart_session'] = $user_cart_session;
+
+
+
+		
+
+
+
+		
+
+
+
+		$userRow = $this->common_model->get_all_details('users',array('id'=>$user_id))->row_array();
+
+
+
+		$cartArray = $this->common_model->get_all_details('user_cart',array('user_id'=>$user_id))->result();
+
+
+
+
+
+
+
+		$segment = $this->uri->segment(1);
+
+
+
+		$tbl_name = 'cms_pages';
+
+
+
+		$tbl_name1 = 'cms_pages_detail';
+
+
+
+		$where = ' where '.$tbl_name.'.slug = "cart" AND '.$tbl_name1.'.language = "'.$this->currLanguage.'" AND '.$tbl_name.'.status = 1 ';
+
+
+
+		$row 	=  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$where)->row_array();
+
+
+
+
+
+
+
+
+
+
+
+		$this->data['userRow'] = $userRow;
+
+
+
+		$this->data['cartArray'] = $cartArray;
+
+
+
+		$this->data['title'] = $row['title'];
+
+
+
+		$this->data['list_heading'] =  $row['title'];
+
+
+
+		$this->data['row'] =  $row;
+
+
+		 
+		$this->template->load('front/base', 'front/cart', $this->data);
+
+
+
+	}
+
+
+
+	public function ajax_remove_cart(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$this->common_model->commonDelete('user_cart',array('id'=>$postData['id']));
+
+
+
+
+
+
+
+		echo 'Product remove from cart successfully';
+
+
+
+	}
+
+
+
+	public function ajax_remove_wishlist(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$this->common_model->commonDelete('user_wishlist',array('id'=>$postData['id']));
+
+
+
+		echo 'Product remove from wishlist successfully';
+
+
+
+	}
+
+
+
+	public function ajax_add_cart(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$product_idArray = explode(',', $postData['product_id']);
+
+
+
+		$quantityArray = explode(',', $postData['quantity']);
+
+
+
+		//$priceArray = explode(',', $postData['price']);
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		for ($i=0; $i < count($product_idArray); $i++) { 
+
+
+
+			$product_id = $product_idArray[$i];
+
+
+
+			$postDataNew =array();
+
+
+
+			$postDataNew['product_id'] =  $product_id;
+
+
+
+			$postDataNew['currency'] = $currentCurrency;
+
+
+
+			$postDataNew['quantity'] =  $quantityArray[$i];
+
+
+
+			//$postDataNew['price'] =  str_replace('$', '',$priceArray[$i]);
+
+
+
+			//$postDataNew['total'] = $quantityArray[$i] * str_replace('$', '',$priceArray[$i]);
+
+
+
+
+
+
+
+			
+
+
+
+			//$price = $priceArray[$i];
+
+
+
+			$qty =  $quantityArray[$i];
+
+
+
+			
+
+
+
+			$tbl_name = 'product';
+
+
+
+			$tbl_name1 = 'product_detail';
+
+
+
+
+
+
+
+			$str = ' WHERE '.$tbl_name.'.status = 1  AND '.$tbl_name.'.id = "'.$product_id.'" AND '.$tbl_name.'.in_stock = "1"';
+
+
+
+			$resultQuery =  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$str.' AND '.$tbl_name1.'.language = "'.$this->currLanguage.'"');
+
+
+
+			$productNum = $resultQuery->num_rows();
+
+
+
+			if($productNum){
+
+
+
+				$str = ' WHERE '.$tbl_name.'.status = 1  AND '.$tbl_name.'.id = "'.$product_id.'" AND '.$tbl_name.'.quantity >= '.$qty.'';
+
+
+
+				$resultQuery =  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$str.' AND '.$tbl_name1.'.language = "'.$this->currLanguage.'"');
+
+
+
+				$productNum = $resultQuery->num_rows();
+
+
+
+				if($productNum){
+
+
+
+					$productDetail = $resultQuery->row_array();
+
+
+
+					 
+
+
+
+					//Offer start
+
+
+
+					
+
+
+
+					$sale_price = $productDetail['sale_price'];
+
+
+
+					$price = $productDetail['price'];
+
+
+
+					$postDataNew['vendor_id'] =  $productDetail['user_id'];
+
+
+
+					$postDataNew['product_thumb'] =  $productDetail['image'];
+
+
+
+						
+
+
+
+											
+
+
+
+					$offerRow 	=  $this->db->query('select * from offers where FIND_IN_SET( "'.$productDetail['id'].'" ,product_id) and status = 1 AND date(start_date) <= "'.date('Y-m-d').'"  AND date(end_date) >= "'.date('Y-m-d').'"')->row_array();
+
+
+
+					if($offerRow){
+
+
+
+						$offer_id = $offerRow['id'];
+
+
+
+						$offer_name = $offerRow['name'];
+
+
+
+						
+
+
+
+						$productDetail['offerRow'] = $offerRow;
+
+
+
+						$postDataNew['offer_id'] = $offer_id;
+
+
+
+						$postDataNew['offer_name'] = $offer_name;
+
+
+
+					}else{
+
+
+
+						$productDetail['offerRow'] = array();
+
+
+
+						$postDataNew['offer_id'] = 0;
+
+
+
+						$postDataNew['offer_name'] = '';
+
+
+
+					}
+
+
+
+					$discount = 0;
+
+
+
+					$discountPercentage = '%';
+
+
+
+					if(!empty($sale_price) && $sale_price > $price){
+
+
+
+						//$discount = number_format(($sale_price - $price) * 100 / $sale_price, 2);
+
+
+
+						$discount = $sale_price - $price;
+
+
+
+					}
+
+
+
+					
+
+
+
+					 
+
+
+
+					if(!empty($productDetail['offerRow'])){ 
+
+
+
+						$discountPercentage = '';
+
+
+
+						$price = $productDetail['price'];
+
+
+
+						$offerRow = $productDetail['offerRow'];
+
+
+
+						if($offerRow['get_type']){
+
+
+
+							if($offerRow['discount_type']){
+
+
+
+								$discountValue = $offerRow['discount'];
+
+
+
+								if($offerRow['buy'] == 1){
+
+
+
+									$discount = numberFormat(($sale_price * $discountValue)/ 100);
+
+
+
+								}else{
+
+
+
+									$discount = numberFormat(($sale_price * $discountValue)/ 100);
+
+
+
+								}
+
+
+
+								$price = $sale_price - $discount; 	
+
+
+
+							}
+
+
+
+						}
+
+
+
+					}
+
+
+
+					//Offer End
+
+
+
+					
+
+
+
+					$postDataNew['product_name'] =  $productDetail['title'];
+
+
+
+					$postDataNew['product_slug'] =  $productDetail['slug'];
+
+
+
+					$price =  $price;
+
+
+
+					
+
+
+
+					$postDataNew['mrp_price'] =  $sale_price;
+
+
+
+					$postDataNew['price'] =  $price;
+
+
+
+					$postDataNew['discount'] =  $discount;
+
+
+
+					$postDataNew['total_discount'] = $qty * $discount;
+
+
+
+					$postDataNew['mrp_price_total'] = $qty * $sale_price;
+
+
+
+					$postDataNew['total'] = $qty * $price;
+
+
+
+					
+
+
+
+
+
+
+
+					$postDataNew['display_mrp_price'] =  get_price($sale_price,$currentCurrency);
+
+
+
+					$postDataNew['display_price'] =  get_price($price,$currentCurrency);
+
+
+
+					$postDataNew['display_discount'] =  get_price($discount,$currentCurrency);
+
+
+
+					$postDataNew['display_total_discount'] =  get_price(($qty * $discount),$currentCurrency);
+
+
+
+					$postDataNew['display_mrp_price_total'] = get_price(($qty * $sale_price),$currentCurrency);
+
+
+
+					$postDataNew['display_total'] = get_price(($qty * $price),$currentCurrency);
+
+
+
+					
+
+
+
+					 
+
+
+
+
+
+
+
+					$postDataNew['created_at'] = date('Y-m-d h:i:s');
+
+
+
+					$postDataNew['user_id'] = $user_id;
+
+
+
+
+
+
+
+					$con = array('user_id'=>$user_id,'product_id'=>$product_id);
+
+
+
+					$row = $this->common_model->get_all_details('user_cart',$con)->row();
+
+
+
+					if($row){
+
+
+
+						$this->common_model->commonDelete('user_cart',$con);
+
+
+
+					}
+
+
+
+					$this->common_model->simple_insert('user_cart',$postDataNew);
+
+
+
+					$msg = 'You\'ve just added this product to the cart';
+
+
+
+					$flag = 1;
+
+
+
+				}else{
+
+
+
+					$msg = 'Quantity is not sufficient';
+
+
+
+					$flag = 0;
+
+
+
+				}
+
+
+
+			}else{
+
+
+
+				$msg = 'Product out of stock';
+
+
+
+				$flag = 0;
+
+
+
+			}
+
+
+
+		}
+
+
+
+		//$sss['cart'] = $this->mini_cart();
+
+
+
+		$sss['message'] = $msg;
+
+
+
+		$sss['flag'] = $flag;
+
+
+
+		echo json_encode($sss);
+
+
+
+	}
+
+
+
+	public function ajax_update_cart(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		$postData['user_id'] = $user_id;
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+
+
+
+
+		$con = array('user_id'=>$postData['user_id'],'id'=>$postData['cart_id']);
+
+
+
+		$row = $this->common_model->get_all_details('user_cart',$con)->row();
+
+
+
+		//echo $this->db->last_query();
+
+
+
+		if($row){
+
+
+
+			$qty = $postData['quantity'];
+
+
+
+			$postDataNew['quantity'] = $qty;
+
+
+
+			$product_id = $row->product_id;
+
+
+
+
+
+
+
+			$tbl_name = 'product';
+
+
+
+			$tbl_name1 = 'product_detail';
+
+
+
+			$str = ' WHERE '.$tbl_name.'.status = 1  AND '.$tbl_name.'.id = "'.$product_id.'"';
+
+
+
+			$resultQuery =  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$str.' AND '.$tbl_name1.'.language = "'.$this->currLanguage.'"');
+
+
+
+			$productDetail = $resultQuery->row_array();
+
+
+
+			//Offer start
+
+
+
+			
+
+
+
+			$sale_price = $productDetail['sale_price'];
+
+
+
+			$price = $productDetail['price'];
+
+
+
+									
+
+
+
+			$offerRow 	=  $this->db->query('select * from offers where FIND_IN_SET( "'.$productDetail['id'].'" ,product_id) and status = 1 AND date(start_date) <= "'.date('Y-m-d').'"  AND date(end_date) >= "'.date('Y-m-d').'"')->row_array();
+
+
+
+			
+
+
+
+			if($offerRow){
+
+
+
+				$offer_id = $offerRow['id'];
+
+
+
+				$offer_name = $offerRow['name'];
+
+
+
+				
+
+
+
+				$productDetail['offerRow'] = $offerRow;
+
+
+
+				$postDataNew['offer_id'] = $offer_id;
+
+
+
+				$postDataNew['offer_name'] = $offer_name;
+
+
+
+			}else{
+
+
+
+				$productDetail['offerRow'] = array();
+
+
+
+				$postDataNew['offer_id'] = 0;
+
+
+
+				$postDataNew['offer_name'] = '';
+
+
+
+			}
+
+
+
+			$discount = 0;
+
+
+
+			$discountPercentage = '%';
+
+
+
+			if(!empty($sale_price) && $sale_price > $price){
+
+
+
+				$discount = $sale_price - $price;
+
+
+
+			}
+
+
+
+			
+
+
+
+			 
+
+
+
+			if(!empty($productDetail['offerRow'])){ 
+
+
+
+				$discountPercentage = '';
+
+
+
+				$price = $productDetail['price'];
+
+
+
+				$offerRow = $productDetail['offerRow'];
+
+
+
+				if($offerRow['get_type']){
+
+
+
+					//$discount = $offerRow['name'];
+
+
+
+					if($offerRow['discount_type']){
+
+
+
+						$discountPrice = $offerRow['discount'];
+
+
+
+						if($offerRow['buy'] == 1){
+
+
+
+							$discount = numberFormat(($sale_price * $discountPrice)/ 100);
+
+
+
+						}else{
+
+
+
+							$discount = numberFormat(($sale_price * $discountPrice)/ 100);
+
+
+
+						}
+
+
+
+						$price = $sale_price - $discount; 
+
+
+
+					}
+
+
+
+				}
+
+
+
+			}
+
+
+
+			//Offer End
+
+
+
+
+
+
+
+			$postDataNew['mrp_price'] =  $sale_price;
+
+
+
+			$postDataNew['price'] =  $price;
+
+
+
+			$postDataNew['discount'] =  $discount;
+
+
+
+			$postDataNew['total_discount'] = $qty * $discount;
+
+
+
+			$postDataNew['mrp_price_total'] = $qty * $sale_price;
+
+
+
+			$postDataNew['total'] = $qty * $price;
+
+
+
+			
+
+
+
+
+
+
+
+			$postDataNew['display_mrp_price'] =  get_price($sale_price,$currentCurrency);
+
+
+
+			$postDataNew['display_price'] =  get_price($price,$currentCurrency);
+
+
+
+			$postDataNew['display_discount'] =  get_price($discount,$currentCurrency);
+
+
+
+			$postDataNew['display_total_discount'] =  get_price(($qty * $discount),$currentCurrency);
+
+
+
+			$postDataNew['display_mrp_price_total'] = get_price(($qty * $sale_price),$currentCurrency);
+
+
+
+			$postDataNew['display_total'] = get_price(($qty * $price),$currentCurrency);
+
+
+
+			
+
+
+
+			
+
+
+
+			$this->common_model->commonUpdate('user_cart',$postDataNew,array('id'=>$row->id));
+
+
+
+			echo $this->db->last_query();
+
+
+
+		}
+
+
+
+	}
+
+
+
+	public function ajax_update_cart_all(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$cart_idArray = explode(',',$postData['cart_id']);
+
+
+
+		$quantityArray = explode(',',$postData['quantity']);
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+		$postData['user_id'] = $user_id;
+
+
+
+		for($i=0;$i<count($cart_idArray);$i++){
+
+
+
+			$con = array('user_id'=>$user_id,'id'=>$cart_idArray[$i]);
+
+
+
+			$row = $this->common_model->get_all_details('user_cart',$con)->row();
+
+
+
+			//echo $this->db->last_query();
+
+
+
+			if($row){
+
+
+
+				$qty = $quantityArray[$i];
+
+
+
+				$postDataNew['quantity'] = $qty;
+
+
+
+				$product_id = $row->product_id;
+
+
+
+
+
+
+
+				$tbl_name = 'product';
+
+
+
+				$tbl_name1 = 'product_detail';
+
+
+
+				$str = ' WHERE '.$tbl_name.'.status = 1  AND '.$tbl_name.'.id = "'.$product_id.'"';
+
+
+
+				$resultQuery =  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$str.' AND '.$tbl_name1.'.language = "'.$this->currLanguage.'"');
+
+
+
+				$productDetail = $resultQuery->row_array();
+
+
+
+			 	$postDataNew['in_stock'] = $productDetail['in_stock'];
+
+
+
+				//Offer start
+
+
+
+				
+
+
+
+				$sale_price = $productDetail['sale_price'];
+
+
+
+				$price = $productDetail['price'];
+
+
+
+										
+
+
+
+				$offerRow 	=  $this->db->query('select * from offers where FIND_IN_SET( "'.$productDetail['id'].'" ,product_id) and status = 1 AND date(start_date) <= "'.date('Y-m-d').'"  AND date(end_date) >= "'.date('Y-m-d').'"')->row_array();
+
+
+
+				/* 
+
+
+
+				if(!$offerRow){
+
+
+
+					$offerRow 	=  $this->db->query('select * from offers where FIND_IN_SET( "'.$productDetail['category'].'" ,category_id) and status = 1 AND date(start_date) <= "'.date('Y-m-d').'"  AND date(end_date) >= "'.date('Y-m-d').'"')->row_array();
+
+
+
+				}
+
+
+
+				*/
+
+
+
+				if($offerRow){
+
+
+
+					$offer_id = $offerRow['id'];
+
+
+
+					$offer_name = $offerRow['name'];
+
+
+
+					
+
+
+
+					//$productDetail['offerRow'] = $offerRow;
+
+
+
+					$postDataNew['offer_id'] = $offer_id;
+
+
+
+					$postDataNew['offer_name'] = $offer_name;
+
+
+
+				}else{
+
+
+
+					//$productDetail['offerRow'] = array();
+
+
+
+					$postDataNew['offer_id'] = 0;
+
+
+
+					$postDataNew['offer_name'] = '';
+
+
+
+				}
+
+
+
+				$discount = 0;
+
+
+
+				$discountPercentage = '%';
+
+
+
+				if(!empty($sale_price) && $sale_price > $price){
+
+
+
+					//$discount = number_format(($sale_price - $price) * 100 / $sale_price, 2);
+
+
+
+					$discount = $sale_price - $price;
+
+
+
+				}
+
+
+
+				
+
+
+
+				 
+
+
+
+				if(!empty($productDetail['offerRow'])){ 
+
+
+
+					$discountPercentage = '';
+
+
+
+					$price = $productDetail['price'];
+
+
+
+					$offerRow = $productDetail['offerRow'];
+
+
+
+					if($offerRow['get_type']){
+
+
+
+						//$discount = $offerRow['name'];
+
+
+
+						if($offerRow['discount_type']){
+
+
+
+							$discountPrice = $offerRow['discount'];
+
+
+
+							if($offerRow['buy'] == 1){
+
+
+
+								$discount = numberFormat(($sale_price * $discountPrice)/ 100);
+
+
+
+							}else{
+
+
+
+								$discount = numberFormat(($sale_price * $discountPrice)/ 100);
+
+
+
+							}
+
+
+
+							$price = $sale_price - $discount; 
+
+
+
+						}
+
+
+
+					}
+
+
+
+				}
+
+
+
+				//Offer End
+
+
+
+				$postDataNew['mrp_price'] =  $sale_price;
+
+
+
+				$postDataNew['price'] =  $price;
+
+
+
+				$postDataNew['discount'] =  $discount;
+
+
+
+				$postDataNew['total_discount'] = $qty * $discount;
+
+
+
+				$postDataNew['mrp_price_total'] = $qty * $sale_price;
+
+
+
+				$postDataNew['total'] = $qty * $price;
+
+
+
+				
+
+
+
+
+
+
+
+				$postDataNew['display_mrp_price'] =  get_price($sale_price,$currentCurrency);
+
+
+
+				$postDataNew['display_price'] =  get_price($price,$currentCurrency);
+
+
+
+				$postDataNew['display_discount'] =  get_price($discount,$currentCurrency);
+
+
+
+				$postDataNew['display_total_discount'] =  get_price(($qty * $discount),$currentCurrency);
+
+
+
+				$postDataNew['display_mrp_price_total'] = get_price(($qty * $sale_price),$currentCurrency);
+
+
+
+				$postDataNew['display_total'] = get_price(($qty * $price),$currentCurrency);
+
+
+
+
+
+
+
+				$this->common_model->commonUpdate('user_cart',$postDataNew,array('id'=>$row->id));
+
+
+
+				//echo $this->db->last_query();
+
+
+
+			}
+
+
+
+		}
+
+
+
+	}
+
+
+
+	public function ajax_add_wishlist(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$product_idArray = explode(',', $postData['product_id']);
+
+
+
+		$quantityArray = explode(',', $postData['quantity']);
+
+
+
+		$priceArray = explode(',', $postData['price']);
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		for ($i=0; $i < count($product_idArray); $i++) { 
+
+
+
+			$product_id = $product_idArray[$i];
+
+
+
+			$postDataNew =array();
+
+
+
+			$postDataNew['product_id'] =  $product_id;
+
+
+
+			$postDataNew['currency'] = $currentCurrency;
+
+
+
+			$postDataNew['quantity'] =  $quantityArray[$i];
+
+
+
+			
+
+
+
+			$price = $priceArray[$i];
+
+
+
+			$qty =  $quantityArray[$i];
+
+
+
+			
+
+
+
+			$tbl_name = 'product';
+
+
+
+			$tbl_name1 = 'product_detail';
+
+
+
+			$str = ' WHERE '.$tbl_name.'.status = 1  AND '.$tbl_name.'.id = "'.$product_id.'"';
+
+
+
+			$resultQuery =  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$str.' AND '.$tbl_name1.'.language = "'.$this->currLanguage.'"');
+
+
+
+			$productDetail = $resultQuery->row_array();
+
+
+
+			 
+
+
+
+			//Offer start
+
+
+
+			
+
+
+
+			$sale_price = $productDetail['sale_price'];
+
+
+
+			$price = $productDetail['price'];
+
+
+
+			$postDataNew['vendor_id'] =  $productDetail['user_id'];
+
+
+
+			$postDataNew['product_thumb'] =  $productDetail['image'];
+
+
+
+				
+
+
+
+									
+
+
+
+			$offerRow 	=  $this->db->query('select * from offers where FIND_IN_SET( "'.$productDetail['id'].'" ,product_id) and status = 1 AND date(start_date) <= "'.date('Y-m-d').'"  AND date(end_date) >= "'.date('Y-m-d').'"')->row_array();
+
+
+
+			if($offerRow){
+
+
+
+				$offer_id = $offerRow['id'];
+
+
+
+				$offer_name = $offerRow['name'];
+
+
+
+				
+
+
+
+				$productDetail['offerRow'] = $offerRow;
+
+
+
+				$postDataNew['offer_id'] = $offer_id;
+
+
+
+				$postDataNew['offer_name'] = $offer_name;
+
+
+
+			}else{
+
+
+
+				$productDetail['offerRow'] = array();
+
+
+
+				$postDataNew['offer_id'] = 0;
+
+
+
+				$postDataNew['offer_name'] = '';
+
+
+
+			}
+
+
+
+			$discount = 0;
+
+
+
+			$discountPercentage = '%';
+
+
+
+			if(!empty($sale_price) && $sale_price > $price){
+
+
+
+				//$discount = number_format(($sale_price - $price) * 100 / $sale_price, 2);
+
+
+
+				$discount = $sale_price - $price;
+
+
+
+			}
+
+
+
+			
+
+
+
+			 
+
+
+
+			if(!empty($productDetail['offerRow'])){ 
+
+
+
+				$discountPercentage = '';
+
+
+
+				$price = $productDetail['price'];
+
+
+
+				$offerRow = $productDetail['offerRow'];
+
+
+
+				if($offerRow['get_type']){
+
+
+
+					if($offerRow['discount_type']){
+
+
+
+						$discountValue = $offerRow['discount'];
+
+
+
+						if($offerRow['buy'] == 1){
+
+
+
+							$discount = numberFormat(($sale_price * $discountValue)/ 100);
+
+
+
+						}else{
+
+
+
+							$discount = numberFormat(($sale_price * $discountValue)/ 100);
+
+
+
+						}
+
+
+
+						$price = $sale_price - $discount; 	
+
+
+
+					}
+
+
+
+				}
+
+
+
+			}
+
+
+
+			//Offer End
+
+
+
+			
+
+
+
+			$postDataNew['product_name'] =  $productDetail['title'];
+
+
+
+			$postDataNew['product_slug'] =  $productDetail['slug'];
+
+
+
+			$price =  $price;
+
+
+
+			
+
+
+
+			$postDataNew['mrp_price'] =  $sale_price;
+
+
+
+			$postDataNew['price'] =  $price;
+
+
+
+			$postDataNew['discount'] =  $discount;
+
+
+
+			$postDataNew['total_discount'] = $qty * $discount;
+
+
+
+			$postDataNew['mrp_price_total'] = $qty * $sale_price;
+
+
+
+			$postDataNew['total'] = $qty * $price;
+
+
+
+			
+
+
+
+
+
+
+
+			$postDataNew['display_mrp_price'] =  get_price($sale_price,$currentCurrency);
+
+
+
+			$postDataNew['display_price'] =  get_price($price,$currentCurrency);
+
+
+
+			$postDataNew['display_discount'] =  get_price($discount,$currentCurrency);
+
+
+
+			$postDataNew['display_total_discount'] =  get_price(($qty * $discount),$currentCurrency);
+
+
+
+			$postDataNew['display_mrp_price_total'] = get_price(($qty * $sale_price),$currentCurrency);
+
+
+
+			$postDataNew['display_total'] = get_price(($qty * $price),$currentCurrency);
+
+
+
+			
+
+
+
+			 
+
+
+
+
+
+
+
+			$postDataNew['created_at'] = date('Y-m-d h:i:s');
+
+
+
+			$postDataNew['user_id'] = $user_id;
+
+
+
+
+
+
+
+			$con = array('user_id'=>$user_id,'product_id'=>$product_id);
+
+
+
+			$row = $this->common_model->get_all_details('user_wishlist',$con)->row();
+
+
+
+			if($row){
+
+
+
+				$this->common_model->commonDelete('user_wishlist',$con);
+
+
+
+				echo 'You\'ve just removed this product from the wishlist';
+
+
+
+			}else{
+
+
+
+				$this->common_model->simple_insert('user_wishlist',$postDataNew);
+
+
+
+				echo 'You\'ve just added this product to the wishlist';
+
+
+
+			}
+
+
+
+		}
+
+
+
+		//echo $this->db->last_query();
+
+
+
+	}
+
+
+
+	
+
+
+
+	public function wishlist(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$segment = $this->uri->segment(1);
+
+
+
+		$tbl_name = 'cms_pages';
+
+
+
+		$tbl_name1 = 'cms_pages_detail';
+
+
+
+		$where = ' where '.$tbl_name.'.slug = "cart" AND '.$tbl_name1.'.language = "'.$this->currLanguage.'" AND '.$tbl_name.'.status = 1 ';
+
+
+
+		$row 	=  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$where)->row();
+
+
+
+		
+
+
+
+		
+
+
+
+		$this->data['title'] = $row->title;
+
+
+
+		$this->data['list_heading'] =  $row->title;
+
+
+
+		$this->data['row'] =  $row;
+
+
+
+		$this->template->load('front/base', 'front/user/wishlist', $this->data);
+
+
+
+	}
+
+
+
+	public function ajax_address_add(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$postData['created_at'] = date('Y-m-d h:i:s');
+
+
+
+		$postData['user_id'] = $this->session->userdata('session_user_id_temp');
+
+
+
+		$postDataNew =array();
+
+
+
+		foreach($postData as $k=>$v){
+
+
+
+			if(!empty($v)){
+
+
+
+				$postDataNew[$k] = $v;
+
+
+
+			}
+
+
+
+		}
+
+
+
+		$this->common_model->simple_insert('user_shipping_address',$postDataNew);
+
+
+
+		//echo $this->db->last_query();
+
+
+
+		echo 'Address added successfully';
+
+
+
+	}
+
+
+
+	public function ajax_address_update(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$postData['created_at'] = date('Y-m-d h:i:s');
+
+
+
+		$postDataNew =array();
+
+
+
+		foreach($postData as $k=>$v){
+
+
+
+			if(!empty($v)){
+
+
+
+				$postDataNew[$k] = $v;
+
+
+
+			}
+
+
+
+		}
+
+
+
+		unset($postDataNew['user_shipping_address_id']);
+
+
+
+		$con = array('id'=>$postData['user_shipping_address_id']);
+
+
+
+		$this->common_model->commonUpdate('user_shipping_address',$postDataNew,$con);
+
+
+
+		echo $this->db->last_query();
+
+
+
+		echo 'Address update successfully';
+
+
+
+	}
+
+
+
+	public function cartupdate(){
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+		$postData['user_id'] = $user_id;
+
+
+
+		
+
+
+
+		$cartArray = $this->common_model->get_all_details('user_cart',array('user_id'=>$user_id))->result_array();
+
+
+
+		foreach($cartArray as $key=>$r){
+
+
+
+			$sale_price = $r['mrp_price'];
+
+
+
+			$price = $r['price'];
+
+
+
+			$mrp_price_total = $r['mrp_price_total'];
+
+
+
+			$total = $r['total'];
+
+
+
+			$discount = $r['discount'];
+
+
+
+			$total_discount = $r['total_discount'];
+
+
+
+
+
+
+
+			$productRow = $this->common_model->get_all_details('product',array('id'=>$r['product_id']))->row_array();
+
+
+
+			$postDataNew['in_stock'] =  $productRow['in_stock'];
+
+
+
+
+
+
+
+			$postDataNew['display_mrp_price'] =  get_price($sale_price,$currentCurrency);;
+
+
+
+			$postDataNew['display_price'] = get_price($price,$currentCurrency);
+
+
+
+			$postDataNew['display_discount'] =  get_price($discount,$currentCurrency);
+
+
+
+			$postDataNew['display_total_discount'] =  get_price($total_discount,$currentCurrency);
+
+
+
+			$postDataNew['display_mrp_price_total'] = get_price($mrp_price_total,$currentCurrency);
+
+
+
+			$postDataNew['display_total'] = get_price($total,$currentCurrency);
+
+
+
+			$this->common_model->commonUpdate('user_cart',$postDataNew,array('id'=>$r['id']));
+
+
+
+		}
+
+
+
+		$cartArray = $this->common_model->get_all_details('user_cart',array('user_id'=>$user_id,'in_stock'=>1))->result_array();
+
+
+
+		$bag_total= 0;
+
+
+
+		$bag_mrp_price_total= 0;
+
+
+
+		$totalcount= 0;
+
+
+
+		foreach($cartArray as $key=>$value){
+
+
+
+			if($value['in_stock']){
+
+
+
+				$totalcount += $value['quantity'];
+
+
+
+				$bag_total += $value['total'];
+
+
+
+				$bag_mrp_price_total += $value['mrp_price_total'];
+
+
+
+			}
+
+
+
+		}
+
+
+
+		$this->data['totalcount'] = $totalcount;
+
+
+
+		 
+
+
+
+		$coupon_id = 0;
+
+
+
+		$gift_code = '';
+
+
+
+		$coupon_value = '';
+
+
+
+		$discount_total = 0;
+
+
+
+		$redeem_point = 0;
+
+
+
+		$redeem_record = '';
+
+
+
+		
+
+
+
+
+
+
+
+		$cart_record = array();
+
+
+
+		
+
+
+
+		$cart_record['bag_total'] = numberFormat($bag_total);
+
+
+
+		$cart_record['discount_total'] = numberFormat($discount_total);
+
+
+
+		$cart_record['sub_total'] = numberFormat($bag_total);
+
+
+
+		$cart_record['bag_mrp_price_total'] = numberFormat($bag_mrp_price_total);
+
+
+
+		
+
+
+
+
+
+
+
+		$cart_record['display_bag_total'] = numberFormat(get_price($bag_total,$currentCurrency));
+
+
+
+		$cart_record['display_discount_total'] = numberFormat(get_price($discount_total,$currentCurrency));
+
+
+
+		$cart_record['display_sub_total'] = numberFormat(get_price($bag_total,$currentCurrency));
+
+
+
+		$cart_record['display_bag_mrp_price_total'] = numberFormat(get_price($bag_mrp_price_total,$currentCurrency));
+
+
+
+
+
+
+
+		$shipping_total = 0;
+
+
+
+
+
+
+
+		$display_total = $shipping_total + $bag_total;
+
+
+
+		$display_mrp_price_total = $shipping_total + $bag_mrp_price_total;
+
+
+
+		
+
+
+
+		$cart_record['shipping_total'] = numberFormat($shipping_total);
+
+
+
+		$cart_record['total'] = numberFormat($display_total);
+
+
+
+		$cart_record['mrp_price_total'] = numberFormat($display_mrp_price_total);
+
+
+
+
+
+
+
+		$cart_record['display_shipping_total'] = numberFormat(get_price($shipping_total,$currentCurrency));
+
+
+
+		$cart_record['display_total'] = numberFormat(get_price($display_total,$currentCurrency));
+
+
+
+		$cart_record['display_mrp_price_total'] = numberFormat(get_price($display_mrp_price_total,$currentCurrency));
+
+
+
+		
+
+
+
+		$sess_array = array();
+
+
+
+		$sess_array['user_id'] = $user_id;
+
+
+
+		$sess_array['cart_record'] = json_encode($cart_record);
+
+
+
+		$sess_array['coupon_id'] = $coupon_id;
+
+
+
+		$sess_array['gift_code'] = $gift_code;
+
+
+
+		$sess_array['coupon_value'] = $coupon_value;
+
+
+
+		$sess_array['coupon_price'] = numberFormat($discount_total,$currentCurrency);
+
+
+
+		$sess_array['redeem_point'] = $redeem_point;
+
+
+
+		$sess_array['redeem_record'] = $redeem_record;
+
+
+
+		$sess_array['ordertime'] = '';
+
+
+
+
+
+
+
+		$conSession = array('user_id'=>$user_id);
+
+
+
+		$sessionRow = $this->common_model->get_all_details('user_cart_session',$conSession);
+
+
+
+		$num_rows = $sessionRow->num_rows();
+
+
+
+		if ($num_rows) {
+
+
+
+			$this->common_model->commonUpdate('user_cart_session',$sess_array,$conSession);
+
+
+
+			$sessionRow = $this->common_model->get_all_details('user_cart_session',$conSession);
+
+
+
+			$num_rows = $sessionRow->num_rows();
+
+
+
+			if ($num_rows > 1) {
+
+
+
+				$this->common_model->commonDelete('user_cart_session',$conSession);
+
+
+
+				$this->common_model->simple_insert('user_cart_session',$sess_array);
+
+
+
+			}
+
+
+
+		}else if(!empty($total)){
+
+
+
+			$this->common_model->simple_insert('user_cart_session',$sess_array);
+
+
+
+		}
+
+
+
+	}
+
+
+
+	public function mini_cart(){
+
+
+
+		$this->cartupdate();
+
+
+
+		$user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		 
+
+
+
+		$c['user_id'] = $user_id;
+
+
+
+		$query = $this->common_model->get_all_details('user_cart',$c);
+
+
+
+		$numRows = $query->num_rows();
+
+
+
+		$rows = $query->result();
+
+
+
+		$q = 0;
+
+
+
+		$price = 0;
+
+
+
+		$currentCurrency = $this->currCurrency;
+
+
+
+		foreach ($rows as $key => $value) {
+
+
+
+			if($value->in_stock){ 
+
+
+
+				$price += $value->display_total;
+
+
+
+				$q += $value->quantity;
+
+
+
+			}
+
+
+
+		}
+
+
+
+		$option = '';
+
+
+
+		$option .= '<div style="max-height: 90vh; overflow: auto;">';
+
+
+
+		$option .= '<div class="dropdown-cart-header">';
+
+
+
+			$option .= '<span>'.$q.' Items'.'</span>';
+
+
+
+		$option .= '</div>';
+
+
+
+
+
+
+
+		$option .= '<div class="dropdown-cart-products">';
+
+
+
+		if ($rows) {
+
+
+
+			$option .= '<div class="mini_cart">';
+
+
+
+				foreach ($rows as $key => $value) {
+
+
+
+					
+
+
+
+					$tbl_name = 'product';
+
+
+
+					$tbl_name1 = 'product_detail';
+
+
+
+					$str = " WHERE ".$tbl_name.".id = '".$value->product_id."' ";
+
+
+
+
+
+
+
+					$pageRowQuery =  $this->common_model->get_all_details_query($tbl_name,' INNER JOIN '.$tbl_name1.' on '.$tbl_name.'.id = '.$tbl_name1.'.main_id '.$str.' AND '.$tbl_name1.'.language = "'.$this->currLanguage.'"');
+
+
+
+					$pageRow = $pageRowQuery->row();
+
+
+
+					$price_total = $pageRow->price;
+
+
+
+					$url = 'product_detail/'.$pageRow->slug;
+
+
+
+					$finalUrl = base_url(str_replace('_', '-', $url));
+
+
+
+					$imgSplit = base_url().'uploads/'.$pageRow->image;
+
+
+
+					if(!$value->in_stock){ $sty = 'text-decoration: line-through';}else{$sty='';}
+
+
+
+					
+
+
+
+					$option .= '<div class="product" style="'.$sty.'">';
+
+
+
+						$option .= '<div class="product-details">';
+
+
+
+								$option .= '<h4 class="product-title"><a>'.$pageRow->title.'</a></h4>';
+
+
+
+								$option .= '<span class="cart-product-info">';
+
+
+
+									$option .= '<span class="cart-product-qty">'.$value->quantity.' x '.$value->display_price.' '.$currentCurrency.'</span>';
+
+
+
+								$option .= '</span>';
+
+
+
+						$option .= '</div>';
+
+
+
+						$option .= '<figure class="product-image-container">';
+
+
+
+							$option .= '<a><img src="'.$imgSplit.'" class="img-responsive"></a>';
+
+
+
+							$option .= '<a onclick="ajax_remove_cart('.$value->id.')" class="btn-remove icon-cancel" title="Remove Product"></a>';
+
+
+
+						$option .= '</figure>';
+
+
+
+						
+
+
+
+						$option .= '<div class="clearfix"></div>';
+
+
+
+					$option .= '</div>';
+
+
+
+
+
+
+
+				}
+
+
+
+				$option .= '<div class="clearfix"></div>';	
+
+
+
+			$option .= '</div>';
+
+
+
+			$option .= '<div class="clearfix"></div>';
+
+
+
+			$option .= '<div class="coupp">';
+
+
+
+			$option .= '</div>';	
+
+
+
+			$option .= '<div class="dropdown-cart-total">';
+
+
+
+				$option .= '<span> '.$this->lang->line('MSG_128').' </span><span class="cart-total-price float-right">'.number_format($price,2).' '.$currentCurrency.'</span>';
+
+
+
+			$option .= '</div>';
+
+
+
+			$option .= '<div class="dropdown-cart-action"><a class="btn btn-primary btn-block" href="'.base_url().'cart">'.$this->lang->line('MSG_24').'</a></div>';
+
+
+
+			$option .= '<div class="clearfix"></div>';
+
+
+
+		}else{
+
+
+
+			$option .= '<div class="mini_cart text-center">'.$this->lang->line('MSG_78');
+
+
+
+			$option .= '</div>';
+
+
+
+		}
+
+
+
+		$option .= '</div>';
+
+
+
+		$option .= '</div>';
+
+
+
+		 
+
+
+
+		$s['record'] = $option;
+
+
+
+		$s['quantity'] = $q;
+
+
+
+		echo json_encode($s);
+
+
+
+	}
+
+
+
+	public function ajax_couponapply11111() {
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$postData['user_id'] = $user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+		
+
+
+
+		$gift_code = $postData['coupon_code'];
+
+
+
+		$c['user_id'] = $user_id;
+
+
+
+		$rows = $this->common_model->get_all_details_field('*','user_cart',$c)->result();
+
+
+
+		
+
+
+
+		$price = 0;
+
+		$price1 = 0;
+
+		$serviceIdArray = array();
+
+		foreach ($rows as $key => $value) {
+
+			$price1 += $value->display_total;
+
+			$price += $value->total;
+
+
+
+			if ($value->cart_type == 'service') {
+
+				array_push($serviceIdArray, $value->product_id);
+
+			}
+
+		}
+
+
+
+		$postData['price'] = $price;
+
+
+
+		
+
+
+
+		
+
+
+
+
+
+
+
+		if(!empty($gift_code) && !empty($price)){
+
+
+
+			 
+
+
+
+			$couponRow=$this->common_model->get_all_details('giftcard_booking',array('gift_code'=>$gift_code,'is_used'=>0))->row_array();
+
+			if (!$couponRow) {
+
+				$couRow=$this->common_model->get_all_details('coupon',array('gift_code'=>$gift_code,'status'=>1))->row_array();
+
+				//echo $this->db->last_query();
+
+				//var_dump($couRow['service']);
+
+				//var_dump($serviceIdArray);
+
+				/*if ($couRow && in_array($couRow['service'], $serviceIdArray)) {
+
+					$couRow['total_price'] = $couRow['coupon_code_price'];
+
+					$couponRow = $couRow;
+
+				}*/
+
+				
+
+				$useRow=$this->common_model->get_all_details('user_order',array('coupon_id'=>$couRow['id']))->num_rows();
+
+
+
+
+
+				if ($useRow < $couRow['coupon_code_limit']) {
+
+					if ($couRow && in_array($couRow['service'], $serviceIdArray)) {
+
+						$couRow['total_price'] = $couRow['coupon_code_price'];
+
+						$couponRow = $couRow;
+
+					}
+
+				}
+
+			}
+
+
+
+			if ($couponRow) {
+
+				$price = $postData['price'];
+
+				
+
+				$couponPrice =  $couponRow['total_price'];
+
+
+
+				if($couponPrice > $price){
+
+
+
+					$coupon_price = ($price);
+
+
+
+				}else{
+
+
+
+					$coupon_price = ($couponPrice);
+
+
+
+				}
+
+
+
+				
+
+
+
+				$couponRow['coupon_price'] = ($coupon_price);
+
+
+
+				
+
+
+
+				$finalPrice = $price - $coupon_price;
+
+
+
+				$p = (($finalPrice));
+
+
+
+				
+
+
+
+
+
+
+
+				$sess_array = array();
+
+
+
+				$sess_array['coupon_id'] = $couponRow['id'];
+
+
+
+				$sess_array['coupon_code'] = $couponRow['gift_code'];
+
+
+
+				$sess_array['coupon_value'] = $couponRow['total_price'];
+
+
+
+				$sess_array['coupon_price'] = ($coupon_price);
+
+
+
+				$sess_array['display_coupon_price'] = $coupon_price;
+
+
+
+
+
+
+
+				$conSession = array('user_id'=>$user_id);
+
+
+
+				
+
+
+
+				$sessionRow = $this->common_model->get_all_details('user_cart_session',$conSession)->row();
+
+
+
+				if ($sessionRow) {
+
+
+
+					$this->common_model->commonUpdate('user_cart_session',$sess_array,$conSession);
+
+
+
+				}
+
+
+
+				
+
+
+
+
+
+
+
+				$response = array(
+
+
+
+					'status' => 'success',
+
+
+
+					'result' => $couponRow,
+
+
+
+					'discount' => numberFormat($coupon_price),
+
+
+
+					'total' => numberFormat($p),
+
+
+
+					'message' => 'Code applied successfully',
+
+
+
+				);
+
+
+
+				echo json_encode($response);
+
+
+
+				die;
+
+
+
+				 
+
+
+
+			}
+
+
+
+			else {
+
+
+
+				$response = array(
+
+
+
+					'status' => 'failed',
+
+
+
+					'total' => numberFormat($price),
+
+
+
+					'discount' => numberFormat(0),
+
+
+
+					'message' => 'Your Code entered is not valid.  ',
+
+
+
+				);
+
+
+
+				echo json_encode($response);
+
+
+
+				die;
+
+
+
+			}
+
+
+
+		}else{
+
+
+
+			$response = array(
+
+
+
+				'status' => 'failed',
+
+
+
+				'total' => numberFormat($price),
+
+
+
+				'discount' => numberFormat(0),
+
+
+
+				'message' => 'Something went wrong',
+
+
+
+			);
+
+
+
+			echo json_encode($response);
+
+
+
+			die;
+
+
+
+		}
+
+
+
+	}
+
+
+
+	 
+
+    public function ajax_couponapply() {
+
+
+
+
+
+
+
+		$postData = $this->input->post();
+
+
+
+
+
+
+
+		$postData['user_id'] = $user_id = $this->session->userdata('session_user_id_temp');
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+
+		$gift_code = $postData['coupon_code'];
+
+
+
+
+
+
+
+		$c['user_id'] = $user_id;
+
+
+
+
+
+
+
+		$rows = $this->common_model->get_all_details_field('*','user_cart',$c)->result();
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+
+		$price = 0;
+
+
+
+		$price1 = 0;
+
+
+
+		$serviceIdArray = array();
+
+
+
+		foreach ($rows as $key => $value) {
+
+
+
+			$price1 += $value->display_total;
+
+
+
+			$price += $value->total;
+
+
+
+
+
+
+
+			if ($value->cart_type == 'service') {
+
+
+
+				array_push($serviceIdArray, $value->product_id);
+
+
+
+			}
+
+
+
+		}
+
+
+
+
+
+
+
+		$postData['price'] = $price;
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		if(!empty($gift_code) && !empty($price)){
+
+
+
+
+			if ($gift_code == 'remove_coupon_code') {
+				$response = array(
+
+					'status' => 'failed',
+
+					'total' => numberFormat($price),
+
+					'discount' => numberFormat(0),
+
+					'message' => '',
+
+				);
+
+				echo json_encode($response);
+
+				die;
+			}
+
+
+			 
+
+
+
+
+
+
+
+			$couponRow=$this->common_model->get_all_details('giftcard_booking',array('gift_code'=>$gift_code,'is_used'=>0))->row_array();
+
+
+
+			if (!$couponRow) {
+				//$couRow=$this->common_model->get_all_details('coupon',array('gift_code'=>$gift_code,'status'=>1))->row_array();
+
+				$table = 'coupon';
+				$condition = '  WHERE status = 1';	
+				$condition .= '  AND gift_code = "'.$gift_code.'"';
+				$condition .= '  AND start_date <= "'.date('Y-m-d').'" AND end_date >= "'.date('Y-m-d').'"';
+		        $condition .= " order by id DESC";
+		        $query = $this->common_model->get_all_details_query($table,$condition);
+		        //echo $this->db->last_query();
+		        $couRow = $query->row_array();
+
+				$useRow = array();
+				if ($couRow) {
+					$useRow = $this->common_model->get_all_details('user_order',array('coupon_id'=>$couRow['id'],'user_id'=>$user_id))->num_rows();
+
+					if ($useRow < $couRow['coupon_code_limit']) {
+
+						if ($couRow && in_array($couRow['service'], $serviceIdArray)) {
+
+							$couRow['total_price'] = $couRow['coupon_code_price'];
+
+							$couponRow = $couRow;
+
+						}
+
+					}else {
+
+						$response = array(
+
+							'status' => 'failed',
+
+							'total' => numberFormat($price),
+
+							'discount' => numberFormat(0),
+
+							'message' => 'Your Code used limit is over',
+
+						);
+
+						echo json_encode($response);
+
+						die;
+
+					}
+				} else {
+
+					$response = array(
+
+						'status' => 'failed',
+
+						'total' => numberFormat($price),
+
+						'discount' => numberFormat(0),
+
+						'message' => 'Your Code is not valid',
+
+					);
+
+					echo json_encode($response);
+
+					die;
+
+				}
+
+			}
+
+			if ($couponRow) {
+
+
+
+				$price = $postData['price'];
+
+
+
+				
+
+
+
+				$couponPrice =  $couponRow['total_price'];
+
+
+
+
+
+
+
+				if($couponPrice > $price){
+
+
+
+
+
+
+
+					$coupon_price = ($price);
+
+
+
+
+
+
+
+				}else{
+
+
+
+
+
+
+
+					$coupon_price = ($couponPrice);
+
+
+
+
+
+
+
+				}
+
+
+
+
+
+
+
+				
+
+
+
+
+
+
+
+				$couponRow['coupon_price'] = ($coupon_price);
+
+
+
+
+
+
+
+				
+
+
+
+
+
+
+
+				$finalPrice = $price - $coupon_price;
+
+
+
+
+
+
+
+				$p = (($finalPrice));
+
+
+
+
+
+
+
+				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				$sess_array = array();
+
+
+
+
+
+
+
+				$sess_array['coupon_id'] = $couponRow['id'];
+
+
+
+
+
+
+
+				$sess_array['coupon_code'] = $couponRow['gift_code'];
+
+
+
+
+
+
+
+				$sess_array['coupon_value'] = $couponRow['total_price'];
+
+				$sess_array['coupon_price'] = ($coupon_price);
+
+				$sess_array['display_coupon_price'] = $coupon_price;
+
+				$conSession = array('user_id'=>$user_id);
+
+				$sessionRow = $this->common_model->get_all_details('user_cart_session',$conSession)->row();
+
+				if ($sessionRow) {
+
+					$this->common_model->commonUpdate('user_cart_session',$sess_array,$conSession);
+
+				}
+
+				$response = array(
+
+					'status' => 'success',
+
+					'result' => $couponRow,
+
+					'discount' => numberFormat($coupon_price),
+
+					'total' => numberFormat($p),
+
+					'message' => 'Code applied successfully',
+
+				);
+
+				echo json_encode($response);
+
+				die;
+
+			}
+
+			else {
+
+				$response = array(
+
+					'status' => 'failed',
+
+					'total' => numberFormat($price),
+
+					'discount' => numberFormat(0),
+
+					'message' => 'Your Code entered is not valid.  ',
+
+				);
+
+				echo json_encode($response);
+
+				die;
+
+			}
+
+		}else{
+
+			$response = array(
+
+				'status' => 'failed',
+
+				'total' => numberFormat($price),
+
+				'discount' => numberFormat(0),
+
+				'message' => 'Something went wrong',
+
+			);
+
+			echo json_encode($response);
+
+			die;
+
+		}
+
+	}
+
+	
+
+	public function ajax_update_cart_after_coupon(){
+
+
+
+		$postData = $this->input->post();
+
+
+
+		$user_id=  $this->session->userdata('session_user_id_temp');
+
+
+
+		$currentCurrency=  $this->currCurrency;
+
+
+
+		$cartArray = $this->common_model->get_all_details('user_cart',array('user_id'=>$user_id))->result_array();
+
+
+
+		$sessionRow = $this->common_model->get_all_details('user_cart_session',array('user_id'=>$user_id))->row();
+
+
+
+
+
+
+
+		$discount_total = $sessionRow->coupon_price;
+
+
+
+		$price= 0;
+
+
+
+		foreach($cartArray as $key=>$value){
+
+
+
+			$price += $value['total'];
+
+
+
+		}
+
+
+
+		$total = $price - $discount_total;
+
+
+
+
+
+
+
+
+
+		 
+
+
+
+        $bag_total = numberFormat($price);
+
+        $sub_total = numberFormat($total);
+
+
+
+        $delivery_charge = 0;
+
+		$chargePrice = $delivery_charge + $total;
+
+		$shipping_total =  ($delivery_charge);
+
+
+
+		$sessionArray = json_decode($sessionRow->cart_record);
+
+		$cart_record = array();
+
+		$cart_record['bag_total'] = $bag_total;
+
+		$cart_record['discount_total'] = $sessionArray->discount_total;
+
+		$cart_record['display_discount_total'] = $sessionArray->display_discount_total;
+
+		$cart_record['coupon_discount_total'] = numberFormat($discount_total);
+
+		$cart_record['sub_total'] = $sub_total;
+
+		$cart_record['display_bag_total'] = $bag_total;
+
+		$cart_record['display_coupon_discount_total'] = (numberFormat($discount_total));
+
+		$cart_record['display_sub_total'] = $sub_total;
+
+
+
+		$cart_record['shipping_total'] = $shipping_total;
+
+		$cart_record['total'] = $chargePrice;
+
+		$cart_record['display_shipping_total'] = $shipping_total;
+
+		$cart_record['display_total'] = numberFormat($chargePrice);
+
+
+
+		$cart_record['bag_mrp_price_total'] = $sessionArray->bag_mrp_price_total;
+
+        $cart_record['display_bag_mrp_price_total'] = $sessionArray->bag_mrp_price_total;
+
+        $cart_record['mrp_price_total'] = $sessionArray->display_mrp_price_total;
+
+        $cart_record['display_mrp_price_total'] = $sessionArray->display_mrp_price_total;
+
+
+
+
+
+		$sess_array = array();
+
+		$sess_array['user_id'] = $user_id;
+
+		$sess_array['cart_record'] = json_encode($cart_record);
+
+		$conSession = array('user_id'=>$user_id);
+
+		$sessionRow = $this->common_model->get_all_details('user_cart_session',$conSession)->row();
+
+		if ($sessionRow) {
+
+			$this->common_model->commonUpdate('user_cart_session',$sess_array,$conSession);
+
+		}
+
+		echo 1;
+
+	}
+
+}
+
+
+
