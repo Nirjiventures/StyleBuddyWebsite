@@ -15,8 +15,7 @@ class Brand extends MY_Controller {
     public function all(){   
         $data = $this->Page_Model->common_all('');
         $postData = $this->input->post();
-        
-        $data['seoData'] = array();
+                $data['seoData'] = array();
         $list = $this->db->query('select * from cms_pages where slug = "brand-partners" and status=1')->row();
         if($list) {
             $data['seoData'] = $list;
