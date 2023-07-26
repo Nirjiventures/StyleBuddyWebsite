@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>ADMIN DASHBOARD</title>
+      <meta name="description" content="">
+      <link rel="icon" type="image/x-icon" href="<?= base_url() ?>assets/images/favicon.png">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="robots" content="all,follow">
+      <!-- Bootstrap CSS-->
+      <link rel="stylesheet" href="<?php echo base_url();?>assets/admin/vendor/bootstrap/css/bootstrap.min.css">
+      <!-- Font Awesome CSS-->
+      <link rel="stylesheet" href="<?php echo base_url();?>assets/admin/vendor/font-awesome/css/font-awesome.min.css">
+      <!-- Fontastic Custom icon font-->
+      <link rel="stylesheet" href="<?php echo base_url();?>assets/admin/css/fontastic.css">
+      <!-- Google fonts - Poppins -->
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
+      <!-- theme stylesheet-->
+      <link rel="stylesheet" href="<?php echo base_url();?>assets/admin/css/style.pink.css" id="theme-stylesheet">
+      <!-- Custom stylesheet - for your changes-->
+      <link rel="stylesheet" href="<?php echo base_url();?>assets/admin/css/custom.css">
+      <!-- Favicon-->
+      <link rel="shortcut icon" href="<?php //echo base_url();?>assets/admin/img/favicon.ico">
+      <link rel="stylesheet" href="<?php echo base_url();?>assets/admin/css/admin.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      
+      <!--<script src="//cdn.ckeditor.com/4.14.1/full/ckeditor.js"></script>-->
+      <script src="https://cdn.ckeditor.com/4.6.2/full/ckeditor.js"></script>
+      <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+      <style type="text/css">
+           .cross_img {
+
+       width: 76px;
+
+       height: 76px;
+
+       margin-top: 8px;
+
+   }
+
+   .cross_image {
+
+       margin-top: 8px;
+
+       position: absolute;
+
+       border: 1px solid #FFF;
+
+       width: 25px;
+
+       text-align: center;
+
+       border-radius: 100px;
+
+       height: 25px;
+
+       line-height: 25px;
+
+       font-weight: bold;
+
+       background: #333333bf;
+
+       color: #FFFF;
+
+   }
+
+   .chosen-container-multi .chosen-choices{
+
+      background: none!important;
+
+   }
+      </style>
+   </head>
+   <body>
+      <div class="page">
+       
+      <header class="header">
+         <nav class="navbar">
+            <!-- Search Box-->
+            <div class="search-box">
+               <button class="dismiss"><i class="icon-close"></i></button>
+               <form id="searchForm" action="#" role="search">
+                  <input type="search" placeholder="What are you looking for..." class="form-control">
+               </form>
+            </div>
+            <div class="container-fluid">
+               <div class="navbar-holder d-flex align-items-center justify-content-between">
+                  <!-- Navbar Header--> 
+                  <div class="navbar-header">
+                     <!-- Navbar Brand -->
+                     <a href="<?php base_url('admin-dashboard');?>" class="navbar-brand d-none d-sm-inline-block">
+                        <div class="brand-text d-none d-lg-inline-block"><strong>StyleBuddy</strong></div>
+                        <div class="brand-text d-none d-sm-inline-block d-lg-none"><strong>BD</strong></div>
+                     </a>
+                     <!-- Toggle Button-->
+                     <a id="toggle-btn" href="#" class="menu-btn active"><span></span><span></span><span></span></a>
+                  </div>
+                  <!-- Navbar Menu -->
+                  <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                     <!-- Search-->
+                     <li>&nbsp;&nbsp;&nbsp;<a class="btn btn-primary" target="_blank"  href="<?=base_url()?>">View Site </a>&nbsp;&nbsp;&nbsp;</li>
+                     <li>Welcome <span class='text-primary'> <?php echo $this->session->userdata('adminEmail'); ?></span> </li>
+                      
+                     <li class="nav-item"><a href="<?php echo base_url('admin/Login/logout');?>" class="nav-link logout"> <span class="d-none d-sm-inline">Logout</span><i class="fa fa-sign-out"></i></a></li>
+                  </ul>
+               </div>
+            </div>
+         </nav>
+      </header>
+      <?php $segment = $this->uri->segment(2); $segment = "admin/$segment"; ?>
+      <div class="container-fluid p-0">
+      <div class="row">
+      <div class="col-md-2">
+         <div class="page-content d-flex align-items-stretch">
+            <!-- Side Navbar -->
+            <nav class="side-navbar">
+               <ul class="list-unstyled">
+                      <li class="active"><a href="<?php echo base_url('admin-dashboard') ;?>"> <i class="icon-home"></i>Dashboard</a></li>
+                      <li class="menu-item-has-children"><a href="#user_managment" aria-expanded="false" data-toggle="collapse">User managment</a>
+                            <ul id="user_managment" class="collapse list-unstyled">
+
+                                <li class="<?= ($segment == 'admin/register-vendors')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/register-vendors');?>">Registered Stylist</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/register-user')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/register-user');?>">Registered User</a>
+                                </li>
+
+                                <li class="<?= ($segment == 'admin/register-boutique')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/register-boutique');?>">Boutiquer User</a>
+                                </li>
+
+                                <li class="<?= ($segment == 'admin/register-postJobUser')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/register-postJobUser');?>">Post Job  User</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="menu-item-has-children"><a href="#product_managment" aria-expanded="false" data-toggle="collapse">Product managment</a>
+                            <ul id="product_managment" class="collapse list-unstyled">
+                                <li class="<?= ($segment == 'admin/shopslider')?'active':'' ?>">
+                                      <a href="<?php echo base_url('admin/shopslider');?>">Shop Slider</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/category')?'active':'' ?>">
+                                      <a href="<?php echo base_url('admin/category');?>">Shop Category</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/sizes')?'active':'' ?>">
+                                      <a href="<?php echo base_url('admin/sizes');?>">Size</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/colors')?'active':'' ?>">
+                                      <a href="<?php echo base_url('admin/colors');?>">Color</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/allproducts')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/allproducts');?>">All  Products</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/offers')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/offers');?>">All  Offers</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/brand')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/brand');?>">Brands</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/abandon_cart')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/abandon_cart');?>">Abandon Cart</a>
+                                </li>
+                                
+                                <li class="<?= ($segment == 'admin/user-order')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/user-order');?>">Shop Orders</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="<?= ($segment == 'admin/packagePurchasedUsers')?'active':'' ?>">
+                             <a href="<?php echo base_url('admin/packagePurchasedUsers');?>">Styling Services - Purchased</a>
+                        </li>
+                        <li class="<?= ($segment == 'admin/serviceorder')?'active':'' ?>">
+                             <a href="<?php echo base_url('admin/serviceorder');?>">Service Orders</a>
+                        </li>
+                        
+
+                        
+                        <li class="<?= ($segment == 'admin/occasionStylistCategories')?'active':'' ?>">
+                             <a href="<?php echo base_url('admin/occasionStylistCategories');?>">Occasion Stylist Category List</a>
+                        </li>
+                                                
+                        <li class="menu-item-has-children"><a href="#footerDropdown" aria-expanded="false" data-toggle="collapse">Manage Services</a>
+                            <ul id="footerDropdown" class="collapse list-unstyled">
+                                <li class="<?= ($segment == 'admin/manage-theme')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/manage-theme');?>">Manage Theme</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/our-services')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/our-services');?>">Our Services</a>
+                                </li>
+                                <!-- <li class="<?= ($segment == 'admin/offers_on_services')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/offers_on_services');?>">Offers On Services</a>
+                                </li> -->
+                                <li class="<?= ($segment == 'admin/fashion-consulting-services')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/fashion-consulting-services');?>">Fashion Consulting</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/stylist-expertise-interests')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/stylist-expertise-interests');?>">Stylist Expertise </a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/looking-stylist')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/looking-stylist');?>">Looking Stylist Expertise </a>
+                                </li>       
+                            </ul>
+                        </li> 
+                      
+                        <li class="menu-item-has-children"><a href="#footerDropdown1" aria-expanded="false" data-toggle="collapse">Manage CMS Pages</a>
+                            <ul id="footerDropdown1" class="collapse list-unstyled">
+                                <li class="<?= ($segment == 'admin/slider')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/slider');?>">Manage Slider </a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/slides')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/slides');?>">Add Slide </a>
+                                </li>
+                                <!-- <li class="<?= ($segment == 'admin/testimonial')?'active':'' ?>">
+                                <a href="<?php echo base_url('admin/testimonial');?>">Manage Testimonial</a>
+                                </li>  -->   
+                                <li class="<?= ($segment == 'admin/cms-page')?'active':'' ?>">
+                                <a href="<?php echo base_url('admin/cms-page');?>">CMS Pages</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/StyleStories')?'active':'' ?>">
+                                <a href="<?php echo base_url('admin/StyleStories');?>">All Style Stories</a>
+                                </li> 
+                                <!--  <li class="<?= ($segment == 'admin/all-style-stories')?'active':'' ?>">
+                                <a href="<?php echo base_url('admin/all-style-stories');?>">All  Style Stories</a>
+                                </li>-->
+                                <li class="<?= ($segment == 'admin/blog-category')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/blog-category');?>">Manage Blog Category</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/stylebuddy_works')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/stylebuddy_works');?>">Stylebuddy works</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/ourteam')?'active':'' ?>">
+                                     <a href="<?php echo base_url('admin/ourteam');?>">Our team</a>
+                                </li>
+
+                                <li class="<?= ($segment == 'admin/faqs_category')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/faqs_category');?>">Faqs Category</a>
+                                </li> 
+                                
+                                <li class="<?= ($segment == 'admin/faqs')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/faqs');?>">FAQS</a>
+                                </li>
+                                 <li class="<?= ($segment == 'admin/contact-us')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/contact-us');?>">Contact Us</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="<?= ($segment == 'admin/review')?'active':'' ?>">
+                             <a href="<?php echo base_url('admin/review');?>">Review</a>
+                        </li>
+                        <!-- <li class="<?= ($segment == 'admin/ourteam')?'active':'' ?>">
+                             <a href="<?php echo base_url('admin/ourteam');?>">Our Team</a>
+                        </li> -->
+
+                        
+                     
+                       
+                        <li class="<?= ($segment == 'admin/collaborate')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/collaborate');?>">Collaborate with Us</a>
+                        </li>
+                        <li class="menu-item-has-children"><a href="#leadDropdown" aria-expanded="false" data-toggle="collapse">Lead Management</a>
+                             <ul id="leadDropdown" class="collapse list-unstyled">
+                                <li class="<?= ($segment == 'admin/RakhiLeads')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/RakhiLeads');?>">Rakhi Leads</a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/DiwaliLeads')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/DiwaliLeads');?>">Diwali Leads</a>
+                                </li> 
+
+                                <!-- <li class="<?= ($segment == 'admin/leads')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/leads');?>">Stylist Leads </a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/leads/allocate')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/leads/allocate');?>">Stylist Allocate Leads </a>
+                                </li> -->
+                            </ul>
+                        </li>
+                        <li class="<?= ($segment == 'admin/services')?'active':'' ?>">
+                             <a href="<?php echo base_url('admin/services');?>">Styling Packages</a>
+                        </li>
+                        <li class="<?= ($segment == 'admin/subscription')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/subscription');?>">Subscription</a>
+                        </li>
+                        <li class="<?= ($segment == 'admin/jobs')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/jobs');?>">Jobs</a>
+                        </li>
+                        <!--<li class="<?= ($segment == 'admin/requirment')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/requirment');?>">Requirement</a>
+                        </li> -->
+                       
+                        <li class="<?= ($segment == 'admin/fashionExpertConsultation')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/fashionExpertConsultation');?>">Fashion Expert Consultation</a>
+                        </li>
+                        
+                        <li class="<?= ($segment == 'admin/consult_question')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/consult_question');?>">Plans Question</a>
+                        </li>
+                        <li class="<?= ($segment == 'admin/consultPlan')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/consultPlan');?>">Yearly Plans</a>
+                        </li>
+                        <li class="<?= ($segment == 'admin/consultOrder')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/consultOrder');?>">Yearly Plan Subscriptions</a>
+                        </li>
+                        <li class="menu-item-has-children"><a href="#giftCardDropdown" aria-expanded="false" data-toggle="collapse">Gift Card Managment</a>
+                            <ul id="giftCardDropdown" class="collapse list-unstyled">
+
+                                <li class="<?= ($segment == 'admin/gift')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/gift');?>">Create new gift card</a>
+                                </li>
+                                 <li class="<?= ($segment == 'admin/gift_booking')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/gift_booking');?>">Purchased gift cards </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="menu-item-has-children"><a href="#logAppDropdown" aria-expanded="false" data-toggle="collapse">Log Managment</a>
+                            <ul id="logAppDropdown" class="collapse list-unstyled">
+
+                                <li class="<?= ($segment == 'admin/survey_log')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/survey_log');?>">Survey Log</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/ask_for_quote_log')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/ask_for_quote_log');?>">Ask for quote log</a>
+                                </li>
+                                <li class="<?= ($segment == 'admin/get_started')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/get_started');?>">Get Started Log</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="menu-item-has-children"><a href="#report_an_issueDropdown" aria-expanded="false" data-toggle="collapse">User reported issues</a>
+                             <ul id="report_an_issueDropdown" class="collapse list-unstyled">
+                                <li class="<?= ($segment == 'admin/report_an_issue_question')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/report_an_issue_question');?>">Report Issue Question</a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/report_an_issue')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/report_an_issue');?>">User Reported Issues</a>
+                                </li> 
+                            </ul>
+                        </li>
+                        
+                                         
+
+                        <li class="menu-item-has-children"><a href="#mobileAppDropdown" aria-expanded="false" data-toggle="collapse">SB APP</a>
+                            <ul id="mobileAppDropdown" class="collapse list-unstyled">
+
+                                <li class="<?= ($segment == 'admin/posts_category')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/posts_category');?>">Post Category</a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/posts_type')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/posts_type');?>">Post Type</a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/posts')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/posts');?>">Posts</a>
+                                </li>                        
+                                 
+                                <li class="<?= ($segment == 'admin/activity_log')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/activity_log');?>">Activity log</a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/push_notification')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/push_notification');?>">Push Notification</a>
+                                </li> 
+                                <li class="<?= ($segment == 'admin/push_notification_log')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/push_notification_log');?>">Activity Notification</a>
+                                </li> 
+                            </ul>
+                        </li>
+                        <li class="<?= ($segment == 'admin/check_availability')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/check_availability');?>">Check Availability Leads</a>
+                        </li> 
+                        <li class="menu-item-has-children"><a href="#videAppDropdown" aria-expanded="false" data-toggle="collapse">Video </a>
+                            <ul id="videAppDropdown" class="collapse list-unstyled">
+
+                                <li class="<?= ($segment == 'admin/allvideos')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/allvideos');?>">All Stylist Video </a>
+                                </li> 
+
+                                <li class="<?= ($segment == 'admin/videos')?'active':'' ?>">
+                                    <a href="<?php echo base_url('admin/videos');?>">Youtube Video</a>
+                                </li> 
+                            </ul>
+                        </li>
+                        <!--<li class="<?= ($segment == 'admin/allvideos')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/allvideos');?>">All Stylist Video </a>
+                        </li> 
+
+                        <li class="<?= ($segment == 'admin/videos')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/videos');?>">Youtube Video</a>
+                        </li> -->
+                        <li class="<?= ($segment == 'admin/site-setting')?'active':'' ?>">
+                            <a href="<?php echo base_url('admin/site-setting');?>">Website Setting</a>
+                        </li> 
+                        <li class="bg-primary text-white">
+                            <a href="<?php echo base_url('admin/Login/logout');?>">Logout</a>
+                        </li>
+                         
+                         
+                        
+               </ul>
+               
+            </nav>
+         </div> 
+      </div> 
+      <div class="col-md-10 p-0"> 
+      <div class="col-md-12 pl-5"> 
+        <script>
+            $('.menu-item-has-children > a').click(function () {
+            if ($(this).next('ul').hasClass("show")) {
+                $('.sub-menu').removeClass('show');
+            } else {
+                $('.sub-menu').removeClass('show');
+                //$(this).next('ul').toggleClass('show');
+            }
+            });
+        </script>      
+        <?php
+            $segment1 = $this->uri->segment(1);
+            $segment2 = $this->uri->segment(2);
+            $segment3 = $this->uri->segment(3);
+            $tab2 = 'Dashboard';
+            $tab2_link ='';
+            $tab3 = '';
+            if ($segment2) {
+                $tab2 = ucwords(str_replace('-', ' ', $segment2));
+            }
+            if ($segment3) {
+                $tab2_link = $segment2;
+                $tab3 = ucwords(str_replace('-', ' ', $segment3));
+            }
+
+
+
+
+
+            function from_camel_case($input) {
+              preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $input, $matches);
+              $ret = $matches[0];
+              foreach ($ret as &$match) {
+                $match = $match == strtoupper($match) ? strtolower($match) : lcfirst($match);
+              }
+              return implode(' ', $ret);
+            }
+            $tab2 = ucwords(from_camel_case($tab2));
+        ?>      
+              
+
+
+
+
+        <div class="container-fluid p-0 wc">
+           <div class="row ">
+              <div class="col-md-6">
+                 <nav aria-label="breadcrumb ">
+                    <ol class="breadcrumb pl-3 mr-3">
+                       <li class="breadcrumb-item "><a href="<?php echo base_url("admin-dashboard");?>" class="text-decoration-none">Home</a></li>
+                       <li class="breadcrumb-item active" aria-current="page"> <?=$tab2?></li>
+                    </ol>                                              
+                 </nav>
+              </div>
+              <div class="col-md-6 text-right">
+                 <div class="lead_mm"><a href="<?php echo base_url('admin/leads');?>">Lead Management</a></div>
+              </div>
+           </div>
+        </div>
+        <style type="text/css">
+            .row .col-md-12 .breadcrumb{
+                display: none;
+            }
+        </style>
