@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "com.gmt.stylebuddy",
+               "sha256_cert_fingerprints": ["E2:18:CB:53:25:5D:9F:8A:E5:23:EA:09:AC:AC:A0:86:92:6E:0B:88:E9:0B:E0:E6:0D:86:0D:83:B5:44:84:E5"] }
+}]

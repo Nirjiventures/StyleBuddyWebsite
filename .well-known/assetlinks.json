@@ -1,0 +1,25 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.gmt.stylebuddy",
+    "sha256_cert_fingerprints":
+    ["17:E0:9D:6F:0A:42:36:DC:A0:6F:C8:93:C6:DB:6E:63:9C:06:74:38:CB:DF:D7:C0:05:C7:BE:74:41:98:10:29"]
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "web",
+    "site": "https://www.stylebuddy.in"
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.gmt.stylebuddy",
+    "sha256_cert_fingerprints":
+    ["17:E0:9D:6F:0A:42:36:DC:A0:6F:C8:93:C6:DB:6E:63:9C:06:74:38:CB:DF:D7:C0:05:C7:BE:74:41:98:10:29"]
+  }
+}]
