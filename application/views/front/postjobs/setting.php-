@@ -1,0 +1,144 @@
+
+
+<?php include ('header.php'); ?>
+
+<div class="container-fluid p-0">
+	<div class="">
+
+		<div class="row m-0 justify-content-end">
+
+
+
+			<div class=" ">
+
+				<div class="sidebar">
+
+					<?php include ('siderbar.php'); ?>
+
+				</div>
+
+			</div>
+
+
+
+
+
+			<div class="col-sm-9">
+
+				<div class="rightbar">
+
+				    <div class="logo_p text-left mb-2 mt-2"><?= $this->session->flashdata('updatePassword'); ?></div>
+
+					<div class="logo_p text-left mb-2 mt-2"><?= $this->session->flashdata('error'); ?></div>
+
+					<h2>Setting</h2>
+
+					<hr>
+
+				     <?= form_open('user/user-setting'); ?>	
+
+					    <div class="row ">
+
+					
+
+					  <div class="col-sm-7">
+
+						  <div class="chpass">
+
+							<p><b>Change Password</b></p>
+
+							<br>
+
+						  
+
+								<div class="col-sm-12">
+
+									
+
+									<div class="form-group boot_sp">
+
+										<input type="text" id="Current" name="currentPassword" value="" class="form-control box_in3">
+
+										<label class="form-control-placeholder2" for="Current">Enter Current Password</label>
+
+										<?php echo form_error('currentPassword','<span class="text-danger mt-1">','</span>') ;?>
+
+									</div>
+
+									
+
+								</div>
+
+							 
+
+								<hr>
+
+							 
+
+								<div class="col-sm-12 mt-4">
+
+								
+
+									<div class="form-group boot_sp">
+
+										<input type="text" id="new_p" name="password" value="" class="form-control box_in3">
+
+										<label class="form-control-placeholder2" for="new_p">Enter New Password</label>
+
+										<?php echo form_error('password','<span class="text-danger mt-1">','</span>') ;?>
+
+									</div>
+
+									
+
+									<div class="form-group boot_sp">
+
+										<input type="text" id="new_p2" name="cpassword" value="" class="form-control box_in3">
+
+										<label class="form-control-placeholder2" for="new_p2">Enter Confirm Password</label>
+
+										<?php echo form_error('cpassword','<span class="text-danger mt-1">','</span>') ;?>
+
+									</div>
+
+									
+
+								</div>
+
+							  
+
+							  <div class="col-sm-12">
+
+								<input type="submit" value="Update Now" class="sub" >
+
+							  </div>
+
+							  
+
+						  </div>
+
+					  </div>
+
+					  
+
+					</div>
+
+					 <?= form_close(); ?>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+
+
+
+
+</body>
+
+</html>
+
