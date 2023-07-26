@@ -1,0 +1,191 @@
+<?php $this->load->view('front/vandor/header'); ?>
+<style type="text/css">
+	.switch-handle {
+	    top: 1px;
+	}
+	.switch {
+	    width: 90px;
+	    padding: 0px;
+	    height: 20px;
+	}
+	.switch-input:checked ~ .switch-handle {
+	    left: 70px;
+	}
+</style>
+<div class="main">
+	<div class="container">
+		<div class="col-sm-12">
+			<div class="row m-0">
+				<div class="col-sm-12">
+					<div class="rightbar">
+						<?= form_open_multipart('',['id'=>'registration-form','name'=>'registration-form']) ?>
+							<div class="row">
+								<div class="col-sm-8"><h2>My Lead Detail</h2></div>
+								<div class="col-sm-4 text-end">
+									<a href="<?=base_url('stylist-zone/dashboard')?>" class="btn btn-primary add_pro"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+									&nbsp; - &nbsp; 
+									<a href="<?=base_url('stylist-zone/leads')?>" class="btn btn-success add_pro"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Back</a>
+								</div>
+								<div class="col-sm-12">
+									<?php if($this->session->flashdata('success')){?>
+					    			    	<span class="text-center text-info flash_message" id="susid"> <?php echo $this->session->flashdata('success');?></span>
+					    			    	<script>
+					                        var timeout = 3000; 
+					                        $('.flash_message').delay(timeout).fadeOut(300);
+					                  </script>
+								    <?php }?>
+								    <?php if($this->session->flashdata('error')){?>
+					                  <span class="text-center text-danger flash_message" id="errid"> <?php echo $this->session->flashdata('error');?></span>
+					                  <script>
+					                        var timeout = 3000; // in miliseconds (3*1000)
+					                        $('.flash_message').delay(timeout).fadeOut(300);
+					                  </script>
+					                <?php }?>
+
+									 
+								</div>
+							</div>
+							<hr>
+							<div class="table-responsive1 mt-5">
+								<?php $row = $list[0]; ?>
+								<div class="row m-0 justify-content-center">
+									<div class="col-sm-6">
+										<div class="lock_nn">
+											<div class="numb_lock">
+												<span>01</span>
+											</div>
+											<div class="data_fild">
+												<span>Name</span>
+												<?php echo ucwords($row->fname).' '.ucwords($row->lname); ?>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<div class="lock_nn">
+											<div class="numb_lock">
+												<span>02</span>
+											</div>
+											<div class="data_fild">
+												<span>Email</span>
+												<?php echo $row->email; ?>
+											</div>
+										</div>
+									</div>
+
+									<div class="col-sm-6">
+										<div class="lock_nn">
+											<div class="numb_lock">
+												<span>03</span>
+											</div>
+											<div class="data_fild">
+												<span>Mobile</span>
+												<?php echo $row->mobile; ?>
+											</div>
+										</div>
+									</div>
+
+									<div class="col-sm-6">
+										<div class="lock_nn">
+											<div class="numb_lock">
+												<span>04</span>
+											</div>
+											<div class="data_fild">
+												<span>City</span>
+												<?php echo $row->city; ?>
+											</div>
+										</div>
+									</div>
+
+
+									<div class="col-sm-6">
+										<div class="lock_nn">
+											<div class="numb_lock">
+												<span>05</span>
+											</div>
+											<div class="data_fild">
+												<span>Date Time</span>
+												<?php echo $row->availability_date; ?>&nbsp;&nbsp;&nbsp;<?php echo $row->availability_start_time; ?> - <?php echo $row->availability_end_time; ?>
+											</div>
+										</div>
+									</div>
+
+									<div class="col-sm-12">
+										<div class="lock_nn">
+											<div class="data_fild2">
+												<span>Message</span>
+												<?php echo $row->message; ?>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+							</div>
+							<div class="clearfix" style="clear:both"></div>
+							<hr/>
+							<h3><b>Client Requirement Details</b></h3>
+							<?php if($row->requirment_status){  $readonly = 'disabled'; }else{$readonly = '';} ?>	
+							<div class="sty_list">
+								<ul class="row-flex">
+									<?php foreach ($requirment as $key => $value): ?>
+										<?php   $requirment_id = explode(',', $row->requirment_id);?>
+										<?php   if (in_array($value->id,$requirment_id)) { $chk = 'checked';}else{$chk='';}?>
+										<li><span><input type="checkbox"   <?=$readonly;?>  <?=$chk;?> class="requirment" name="requirment[]" value="<?=$value->id?>====<?=$value->amount?>" onclick="calculate()" > </span> <?=$value->title?> </li>
+									<?php endforeach ?>
+								</ul>
+							</div>
+							<div class="col-sm-12">
+								<div class="row m-0">
+									<div class="col-sm-4">
+										<div class="form-group boot_sp">
+											<input required="" type="text" id="final_total" name="final_total" value="<?php echo $row->requirment_total; ?>" class="form-control box_in3" readonly="">
+											<label class="form-control-placeholder2" for="fname">Total </label>
+										</div>
+									</div>
+									<?php if(!$row->requirment_status){ ?>
+										<div class="col-sm-12">
+											<input type="submit" class="btn btn-primary">
+										</div>
+									<?php } ?>
+								</div>
+							</div>
+						<?= form_close(); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+    function blogStatus(id,status){
+        var newstatus = (status=='0')? '1':'0';
+        if(confirm("Are you sure to change status")) {
+              $.ajax({
+              type:"POST",
+              url: "<?= base_url('vendor/leads_status'); ?>", 
+              data: {"status":newstatus, "id":id}, 
+              success: function(data) {
+                location.reload();
+              }         
+           });
+       } else {
+           location.reload();
+       }
+    }
+
+    function calculate(){
+    	var  final_total = 0;
+		var requirment = $("input.requirment:checkbox:checked").map(function(){
+	    	return $(this).val();
+	    }).get(); 
+	    $.each(requirment, function( index, value ) {
+	    	var myArray = value.split("====");
+	    	final_total += parseFloat(myArray[1]);
+		});
+	    $("#final_total").val(final_total.toFixed(2));
+
+    }
+</script>
+</body>
+</html>
+<?php $this->load->view('front/vandor/footer'); ?>

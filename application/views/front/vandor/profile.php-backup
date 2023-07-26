@@ -1,0 +1,492 @@
+<?php $this->load->view('front/vandor/header'); ?>
+<link href='<?=base_url()?>assets/calender/main.css' rel='stylesheet' />
+<script src='<?=base_url()?>assets/calender/main.js'></script>
+<script type="text/javascript">
+		var selectedDatesArray=[];
+    document.addEventListener('DOMContentLoaded', function() {
+	    var calendarEl = document.getElementById('slots');
+			var date = new Date();
+			var d = date.getDate();
+			var m = date.getMonth();
+			var y = date.getFullYear();
+			
+
+			if(d<10){
+			  d = '0'+d
+			} 
+			if(m<10){
+			  m = '0'+(m+1)
+			} 
+		
+
+			today = y+'-'+m+'-'+d;
+	    var calendar = new FullCalendar.Calendar(calendarEl, {
+				//initialDate: today,
+				selectable: true,
+				selectMirror: true,
+
+				eventClick: function(arg) {
+					console.log(arg.event.extendedProps);
+					var dddd = arg.event.extendedProps;
+				},
+
+				select: function(start, end, allDay) {
+					if (start.startStr < today) {
+						//$('#datepicker').val('');
+						$('#date_Err').html('Please select future date');
+					}else{
+						selectedDatesArray.push(start.startStr);
+						$('#datepicker').val(start.startStr);
+						$('#date_Err').html('Your selected date : '+start.startStr);
+						console.log(selectedDatesArray);
+					}
+				},
+				editable: true,
+				//weekNumbers: true,
+				selectable: true,
+				//businessHours: true,
+				dayMaxEvents: true,
+			});
+			calendar.render();
+		});
+
+</script>
+<div class="main">
+	<div class="row m-0 row-flex">
+
+		<div class="col-sm-3 p-0 sdk">
+			<div class="sidebar">
+			  <?php $this->load->view('front/vandor/siderbar'); ?>
+			</div>
+		</div>
+		<div class="col-sm-9">
+			<div class="rightbar">
+				<h2>Profile</h2>
+				<div class="logo_p text-left mb-2 mt-2"><?= $this->session->flashdata('success'); ?></div>
+				<div class="logo_p text-left mb-2 mt-2"><?= $this->session->flashdata('error'); ?></div>
+				<hr>
+				<?= form_open_multipart('stylist-zone/profile-update',['id'=>'registration-form','name'=>'registration-form']) ?>
+				<?php // form_open_multipart('stylist-zone/profile-update') ?>
+
+				
+
+
+				<div class="row mt-5">
+					<div class="col-sm-12">
+						<div class="row align-items-end mb-5">
+						 	<div class="col-sm-2 ">
+						     <div class="uskk2 mb-2"> 
+    						  <?php if(empty($profile->image)) { ?>    
+    						      <img alt="Personal Styling | StyleBuddy"  alt="StyleBuddy"  src="<?= base_url() ?>assets/images/stylist/no-image.jpg" class="img-fluid">	
+    						  <?php } else { ?>
+    						      <img alt="Personal Styling | StyleBuddy"  alt="StyleBuddy"  src="<?= base_url('assets/vandor/images/').$profile->image ?>" class="img-fluid">
+    						  <?php } ?>
+    						</div>
+						</div>
+						    <div class="col-sm-4">
+    						<input type="file" class="box" name="image" accept=".jpg,.jpeg" >
+    						<?php if($this->session->flashdata('imgerror')) {  ?>
+    						<span class="bg-danger text-white p-2"><?= $this->session->flashdata('imgerror');  ?></span>
+    						<?php } ?>
+				  	      </div>
+						  </div>
+						  <div class="row">
+						  <!--<div class="col-md-2 "></div>-->
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="fname" name="fname" value="<?= $profile->fname ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="fname">First name<span class="text-danger">*</span></label>
+									<?php echo form_error('fname','<span class="text-danger mt-1">','</span>') ;?>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="lname" name="lname" value="<?= $profile->lname ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="fname">Last name<span class="text-danger">*</span></label>
+									<?php echo form_error('lname','<span class="text-danger mt-1">','</span>') ;?>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="email" id="email" name="email" value="<?= $profile->email ?>" readonly class="form-control box_in3">
+									<label class="form-control-placeholder2" for="fname">Email<span class="text-danger">*</span></label>
+									<?php echo form_error('email','<span class="text-danger mt-1">','</span>') ;?>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<select class="form-control box_in3" name="gender">
+										<option value="1" <?= ($profile->gender == 1)?'selected':'' ?> >Male</option>
+										<option value="2" <?= ($profile->gender == 2)?'selected':'' ?> >Female</option>
+									</select>
+									<label class="form-control-placeholder2" for="Password">Gender<span class="text-danger">*</span></label>
+									<?php echo form_error('gender','<span class="text-danger mt-1">','</span>') ;?>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="mobile" value="<?= $profile->mobile ?>" name="mobile" onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57" onpaste="return false" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="mnumber">Mobile Number</label>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								 
+								<div class="form-group boot_sp">
+										<select class="form-control box_in3"  id="experience" name="experience" >
+		    								<option  disabled selected>Select Experience</option>
+		    								<?php $aaa = array('< 1'=>'< 1 Years','1'=>'1+ Years','2'=>'2+ Years','3'=>'10-15 Years','15'=>'Above 15 Years');?>
+		    								<?php 
+		    								for ($i=1; $i < 17  ; $i++) { if($i == $profile->experience){$sel='selected';}else{$sel='';}  if($i == 16){ $text = 'Above 15 Year';}else{$text = '< '.$i.' Year';}?>
+		    									<option value="<?=$i?>" <?=$sel?>><?=$text?></option>
+		    								<?php } ?>
+		    						</select>
+									<label class="form-control-placeholder2" for="Password">Years of Experience<span class="text-danger">*</span></label>
+									<?php echo form_error('experience','<span class="text-primary mt-1">','</span>') ;?>
+									<div id="experience_err"></div>
+								</div>
+							</div>
+
+							<!--<div class="col-sm-4">-->
+							<!--	<div class="form-group boot_sp">-->
+							<!--		<input type="date" id="dob" name="dob" value="<?= $profile->dob ?>" class="form-control box_in3">-->
+							<!--		<label class="form-control-placeholder2" for="dob">Date Of Birth</label>-->
+							<!--	</div>-->
+							<!--</div>-->
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="designation" name="designation" value="<?= $profile->designation ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="fname">Designation<span class="text-danger">*</span></label>
+								</div>
+							</div>
+
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="address" name="address" value="<?= $profile->address ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="address">Address</label>
+								</div>
+							</div>
+
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="pin" name="pin" value="<?= $profile->pin ?>" onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57" onpaste="return false" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="pin">Pincode</label>
+								</div>
+							</div>
+							 
+
+							<div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="project_deliverd" name="project_deliverd" value="<?= $profile->project_deliverd ?>" onkeypress="return event.charCode >= 48 &amp;&amp; event.charCode <= 57" onpaste="return false" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="pin">project_deliverd</label>
+								</div>
+							</div>
+
+
+							<!-- <div class="col-sm-4">
+								<div class="form-group boot_sp">
+									<input type="text" id="flink" name="facebook_link" value="<?= $profile->facebook_link ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="flink">Facebook Link</label>
+								</div>
+							</div>
+
+							<div class="col-sm-3">
+								<div class="form-group boot_sp">
+									<input type="text" id="tlink" name="twitter_link" value="<?= $profile->twitter_link ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="tlink">Twitter Link</label>
+								</div>
+							</div> -->
+
+							<div class="col-sm-3">
+								<div class="form-group boot_sp">
+									<input type="text" id="inlink" name="instagram_nlink" value="<?= $profile->instagram_nlink ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="inlink">Instagram Link</label>
+								</div>
+							</div>
+
+							<div class="col-sm-3">
+								<div class="form-group boot_sp">
+									<input type="text" id="inlink" name="linkedin_link" value="<?= $profile->linkedin_link ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="inlink">linkedin Link</label>
+								</div>
+							</div>
+							
+							<div class="col-sm-3">
+								<div class="form-group boot_sp">
+									<input type="text" id="inlink" name="behance_link" value="<?= $profile->behance_link ?>" class="form-control box_in3">
+									<label class="form-control-placeholder2" for="inlink">Behance Link</label>
+								</div>
+							</div>
+							
+
+
+							 
+
+							<!--<div class="col-sm-4">-->
+							<!--	<div class="form-group boot_sp">-->
+							<!--		<input type="text" id="prlink" name="portfolio_rlink" value="<?= $profile->portfolio_rlink ?>" class="form-control box_in3">-->
+							<!--		<label class="form-control-placeholder2" for="prlink">Portfolio Link</label>-->
+							<!--	</div>-->
+							<!--</div>-->
+                            <div class="col-sm-3">
+								<div class="form-group boot_sp">
+									<select class="form-control box_in3" name="state" id="state">
+							            <option>Select Location</option>
+							            <?php if($states) { foreach($states as $state) { ?>
+							            <option value="<?= $state->id ?>" <?= ($profile->state == $state->id)?"selected":'' ?> ><?= $state->name ?></option>
+							            <?php }} ?>
+							         </select>
+							         <label class="form-control-placeholder2" for="Password">state</label>
+								</div>
+							</div>
+							<div class="col-sm-3">
+						    <div class="form-group boot_sp">
+							    <select class="form-control box_in3" name="city" id="city">
+							   <option>Select City</option>
+							    <?php if($cities) { foreach($cities as $city) { ?>
+							     <option value="<?= $city->id ?>" <?= ($profile->city == $city->id)?"selected":'' ?> ><?= $city->city ?></option>
+							   <?php }} ?>
+							 </select>
+							 <label class="form-control-placeholder2" for="dob">Location<span class="text-danger">*</span></label>
+						   </div>
+					</div>
+                            
+							
+							<div class="col-sm-12">
+								<div class="form-group boot_sp">
+									<textarea class="form-control box_in3" name="about" style="height: 100px!important;"><?= $profile->about ?></textarea>
+									<label class="form-control-placeholder2" for="pin">About Me short</label>
+								</div>
+							</div>
+								<div class="col-sm-12">
+								<div class="form-group boot_sp">
+								    
+									<textarea class="form-control box_in3" id="editor1" name="more_about" style="height: 100px!important;"><?= $profile->more_about ?></textarea>
+									<label class="form-control-placeholder2" for="ab">More About Me</label>
+									<script type="text/javascript"> CKEDITOR.replace("editor1"); </script>
+								</div>
+							</div>
+						</div>
+						<div class="row box_checkbox">
+							<div class="col-sm-12 mt-2">
+								<div class="form-group">
+									<label><b>Area Of Expertise / Interests </b></label>
+								</div>
+							</div>
+							<?php if(!empty($profile->expertise)) { $expertise = explode(',',$profile->expertise); } 
+							      if(!empty($expertises)) { foreach($expertises as $expertiseList) {  if($expertiseList->name == 'Creating Lookbooks')  {continue;} ?>
+		                        <div class="col-sm-6">
+								<div class="form-check">
+								  <input class="form-check-input checkarray" type="checkbox" name="expertise[]" value="<?= $expertiseList->id ?>"  <?php if(isset($expertise)) { if(in_array($expertiseList->id, $expertise)){ echo "checked"; } } ?> id="flexCheckDefault-<?= $expertiseList->id ?>">
+								  <label class="form-check-label" for="flexCheckDefault-<?= $expertiseList->id ?>">
+								   <?= $expertiseList->name ?></label>
+								</div>
+							</div>
+		                    <?php }} ?>
+		            <div id="expertise_err"></div>        	
+						</div>
+						<div class="row mb-4 mt-0">
+							<!--<div class="col-sm-12">-->
+							<!--	<hr>-->
+							<!--</div>-->
+							<!--<div class="col-sm-6">-->
+							<!--	  <div><label><b>Upload CV</b></label>-->
+							<!--			Choose File...-->
+							<!--			<input type="file" name="cv" accept=".xlsx,.xls,.doc, .docx,.pdf"  size="40">-->
+								
+							<!--		&nbsp;-->
+							<!--		<span class="label label-info" id="upload-file-info"></span>-->
+							<!--	</div>						-->
+							<!--</div>-->
+							<!--<div class="col-sm-6">-->
+							<!--	<div class="cv">-->
+							<!--	    <?php if(!empty($profile->cv)) { ?>-->
+							<!--		<i class="fa fa-file-word-o" aria-hidden="true"></i> <?= $profile->cv; ?> <a href="<?= base_url('assets/images/cv/').$profile->cv ?>" class="btn btn-primary text-white text-dacoration-none" download>Download</a>-->
+							<!--		<?php }?>-->
+							<!--	</div>-->
+							<!--</div>-->
+							<div class="col-sm-12">
+								<hr>
+							</div>
+							<div class="col-sm-12">
+							<div class="input-group date" data-provide="datepicker">
+								<input type="hidden" class="form-control" id="datepicker"  min="<?php echo date("Y-m-d"); ?>">
+								<div id="date_Err"></div>
+								<div class="input-group-addon">
+									<span class="glyphicon glyphicon-th"></span>
+									<input type="hidden" name="id" id="id" value="<?= $datas->id ?>">
+									<input type="hidden" name="price" id="price" value="<?= $datas->price ?>">
+									<input type="hidden" name="name" id="name" value="<?= $datas->name ?>">
+									<input type="hidden" name="hour" id="hour" value="<?= $datas->time ?>">
+								</div>
+							</div>
+							<div>
+								<div id="slots"> </div>
+
+							</div>
+						
+						</div>	
+
+							<div class="col-sm-12">
+								<input type="submit" value="UPDATE NOW" class="sub">
+							</div>
+						</div>
+					</div>
+				</div>
+				<?= form_close(); ?>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+    $(document).ready(function() {
+        //alert('dfdsfdsfdsf');
+    $('#state').on('change',function(){
+      var state_id = $(this).val();
+      if(state_id) {
+          $.ajax({
+                type:'POST',
+                url:"<?= base_url('city-data')?>",
+                data:'state_id='+state_id,
+                success:function(html){
+                    $('#city').html(html);
+                }
+            }); 
+      } else {
+          $('#city').html('<option value="">Select state first</option>');
+      } 
+    });
+}); 
+
+
+
+$('#registration-form').on('submit',function(e){
+        e.preventDefault();
+         
+        $('#expertise_err').html('');
+         
+        var searchIDs = $("input.checkarray:checkbox:checked").map(function(){
+		      return $(this).val();
+		    }).get(); 
+	    	console.log(searchIDs.length);
+				/*	var image = document.getElementById('image'); 
+				var width = image.clientWidth;
+				var height = image.clientHeight;
+				console.log(searchIDs.length);*/
+	 
+
+				/*var img=$("#image")[0].files[0].size;
+				var imgsize=img/1024; 
+				console.log(imgsize);
+				console.log(img);*/
+
+
+        if(!searchIDs.length){
+					$('#expertise_err').html('<span class="text-green">Please checked expertise</span>') 
+					return false; 
+				}else if(searchIDs.length>3){
+					$('#expertise_err').html('<span class="text-green">Please checked expertise less than 4</span>') 
+					return false; 
+				}else{
+					$('#registration-form').get(0).submit();
+					return true;
+				}
+    });   
+</script>
+
+</body>
+</html>
+<style type="text/css">
+	.text-green{
+		font-weight: bold;
+		color: green!important;
+	}
+</style>
+<?php $this->load->view('front/vandor/footer'); ?>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+         $(function () {
+             $('.dat_tt').hide(); // checked
+            $('#book-online').on('submit',function(e){
+            e.preventDefault();
+            var error ;   
+            var id = $('#id').val();
+            var date = $('#datepicker').val();
+            var time = $("input[name='radio-price1']:checked").val();
+            var staff = $('#stafff option:selected').val();
+            var price = $('#price').val();
+            var name = $('#name').val();
+            var meetingHour = $('#hour').val();
+            
+            $('#datepicker').removeClass('box_in3_err');
+            $('#staff').removeClass('box_in3_err');
+
+            $('#date_Err').html('');
+            $('#stafff_Err').html('');
+
+						if(!$('#datepicker').val()) {
+							$('#datepicker').addClass('box_in3_err');
+							$('#date_Err').html('Please select date');
+							return false;
+						} else if(!$('#stafff').val()) {
+							$('#stafff').addClass('box_in3_err');
+							$('#stafff_Err').html('Please select staff');
+							return false;
+						} else {
+							$('.dat_tt').show();
+							$('#datev').text(date);
+							$('#timev').text(time);
+
+							$.ajax({
+								type: 'post',
+								dataType:"json",
+								url: "<?= base_url('book-now-process') ?>",         
+								data: {id:id,date:date,time:time,staff:staff, price:price, name:name, meetingHour:meetingHour },
+								success: function(data){
+									//console.log(data.status);
+									//console.log(data.redirect);
+									if(data.status == true) {
+										//console.log(data.redirect);
+										window.location.href =  "<?= base_url()?>"+data.redirect;
+									}
+								}         
+							});         
+						}
+					});
+				});
+</script>    
+
+
+
+ 
+
+<style type="text/css">
+
+	.fc-view-harness.fc-view-harness-active {
+
+	    height: 452px!important;
+
+	}
+
+	table.fc-scrollgrid-sync-table {
+
+	    width: 100%!important;
+
+	    height: 420px!important;
+
+	}
+
+	.fc-daygrid-body,table.fc-col-header  {
+
+	    width: 100%!important;
+
+	}
+
+	button.fc-today-button.fc-button.fc-button-primary {
+
+	    text-transform: capitalize;
+
+	}
+
+</style>

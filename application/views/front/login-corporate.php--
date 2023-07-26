@@ -1,0 +1,224 @@
+<?php  $this->load->view('front/template/header'); ?>
+<?php
+	$segment1 = $this->uri->segment(1);
+	$segment2 = $this->uri->segment(2);
+	$segment3 = $this->uri->segment(3);
+	$segment4 = $this->uri->segment(4);
+?>
+<?= form_open_multipart('',['id'=>'loginForm','name'=>'loginForm','method'=>'post']) ?>
+<div class="my_login_part">
+	<div class="container">
+		<div class="login">
+	      <div class="row m-0 justify-content-between align-items-center">
+					<div class="col-sm-5 col-md-4 col-lg-4">
+						<div class="login_form jogi_log stp1">
+							<div class="col-sm-12 mb-3">
+								<div class="logo_p">
+									
+									<div class="col-12 sign_into"><?php echo ($seoData->content);?></div>
+									<p class="mt-2 cop_account">Dont have a corporate account? <a target="_blank" href="<?=base_url('corporate-registration')?>" class="cop_login">Register now</a></p>
+									
+								</div>
+							</div>
+							<div class="clearfix"></div>
+						  	<div class="col-sm-12 text-center">
+						  		<div class="logo_p  mb-2" id="loginMessage"><?= $this->session->flashdata('login_message'); ?></div>
+						  	</div>
+							<div class="clearfix"></div>
+							<div class="fg_gp">
+								<i class="fa fa-envelope-o"></i>
+								<input id="userEmail" name="userEmail" type="text" placeholder="Email Address" class="box_new">
+								<div id="email_err"></div>
+							</div>
+							<div class="fg_gp">
+								<i class="fa fa-lock"></i>
+								<input id="userPassword" name="userPassword" type="password" placeholder="Password" class="box_new">
+								<i class="toggle-password fa fa-fw fa-eye-slash"></i>
+								<div id="password_err"></div>
+							</div>
+						 	<div class="fg_gp font14">
+								<input name="name" type="checkbox"> Remember me
+								<span><a href="<?= base_url('forgot-password') ?>">Forgot password?</a></span>
+							</div>
+						 	<div class="">
+								<div class="mt-3 paddleft">
+									<button type="button" id="next_form" value="" class="action_bt_2  font16">Send OTP</button>
+								</div>
+								
+
+								<input type="hidden" name="lastPage" value="<?=$lastPage?>">
+							</div>
+						</div>
+						<div class="otp stp2">
+
+							<div class="col-sm-12 mb-3">
+								<div class="logo_p">
+									<div class="col-12 sign_into">Please enter OTP sent on your corporate mail ID to login</div>
+								</div>
+							</div>
+							<div id="response_msg"></div>
+							<div class="fg_gp">
+								<i class="fa fa-lock"></i>
+								<input id="login_otp" name="login_otp" type="text" placeholder="Enter 4 Digit Code" class="box_new">
+								
+								<div id="login_otp_err"></div>
+							</div>
+
+							 
+
+							<div class="row m-0">
+								<div class="col-6 text-center  mt-3 paddleft">
+									<input type="submit" value="Login" class="action_bt_2 w100 font16">
+								</div>
+								<div class="col-6 text-center  mt-3 paddleft">
+									<span><a class="action_bt_2 w100 font16" style="cursor: pointer;" onclick="resendOtp()">RESEND OTP</a></span>
+								</div>
+								
+
+								<input type="hidden" name="lastPage" value="<?=$lastPage?>">
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="get_new_sty">
+							<?php 
+						        $img =  'assets/images/'.$this->site->logo; 
+						        $path = 'assets/images/'; 
+						        $image = $seoData->image;
+						        if(!empty($image))  { 
+
+						            $img1 =  $path.$image; 
+
+						            if (file_exists($img1)) {
+
+						                $img = $img1;
+
+						            }
+
+						        }
+					        ?>
+
+							<img alt="Personal Styling | StyleBuddy"  alt="StyleBuddy"  src="<?= base_url($img); ?>" class="img-fluid">
+							<?php echo ($seoData->content2);?>
+						</div>
+					</div>
+				</div>
+		</div>
+	</div>
+</div>
+<?= form_close(); ?>
+<?php  $this->load->view('front/template/footer'); ?>
+
+<script>
+    $(document).ready(function(){
+        $("#next_form").click(function(){
+            $('#email_err').html('');
+            $('#password_err').html('');
+            if($('#userEmail').val() == '') {
+                $('#email_err').html('<span class="text-red">Please enter email</span>');
+                $('#userEmail').focus();
+                return false; 
+            } else if($('#userPassword').val() == '') {
+                $('#password_err').html('<span class="text-red">Please enter password</span>');
+                $('#userPassword').focus();
+                return false; 
+            } else{
+            	var userEmail = $('#userEmail').val();
+				var userPassword = $('#userPassword').val();
+	            $.ajax({
+	                type: 'POST',
+	                dataType:"json",
+	                url: '<?php echo base_url(); ?>login/loginAjaxSendOtp',
+	                data: {userEmail:userEmail,userPassword:userPassword},
+	                success: function(data) {
+	                	console.log(data);
+	                	if(data.status == 'success'){
+	                			$(".stp2").show();
+    							$(".stp1").hide();
+	                	}else{
+	                		$('#loginMessage').html('<span class="text-red">'+data.response+'</span>');
+	                		return false; 
+	                	}
+		           	}
+	            });    
+
+                
+            }
+            
+        });
+        $("#show").click(function(){
+            $("p").show();
+        });
+    
+ 
+		$('#loginForm').on('submit',function(e){
+				  e.preventDefault();
+			      $('#email_err').html('');
+		          $('#password_err').html('');
+		          if($('#userEmail').val() == '') {
+		              $('#email_err').html('<span class="text-red">Please enter email</span>');
+		              $('#userEmail').focus();
+		              return false; 
+		          } else if($('#userPassword').val() == '') {
+		              $('#password_err').html('<span class="text-red">Please enter password</span>');
+		              $('#userPassword').focus();
+		              return false; 
+		          } else if($('#login_otp').val() == '') {
+		              $('#login_otp_err').html('<span class="text-red">Please enter password</span>');
+		              $('#login_otp').focus();
+		              return false; 
+		          }else{
+			        var userEmail = $('#userEmail').val();
+					var userPassword = $('#userPassword').val();
+					var login_otp = $('#login_otp').val();
+			        $.ajax({
+			            type: 'POST',
+			            dataType:"json",
+			            url: '<?php echo base_url(); ?>login/loginAjaxWithOtp',
+			            data: {userEmail:userEmail,userPassword:userPassword,login_otp:login_otp},
+			            success: function(data) {
+			            	$('#response_msg').html('<span class="text-red">'+data.response+'</span>');
+	                	if(data.status == 'success'){
+	                		window.location.href = '<?=base_url('services')?>';
+	                	}else{
+	                		$('#loginMessage').html('<span class="text-red">Please enter correct otp</span>');
+	                		return false; 
+	                	}
+
+			            	 
+			         	}
+			        });
+			      }
+	  
+				});    
+	   
+	});
+
+   function resendOtp(){
+   	  $('#email_err').html('');
+      $('#password_err').html('');
+      if($('#userEmail').val() == '') {
+          $('#email_err').html('<span class="text-red">Please enter email</span>');
+          $('#userEmail').focus();
+          return false; 
+      } else if($('#userPassword').val() == '') {
+          $('#password_err').html('<span class="text-red">Please enter password</span>');
+          $('#userPassword').focus();
+          return false; 
+      } else{
+      	var userEmail = $('#userEmail').val();
+				var userPassword = $('#userPassword').val();
+        $.ajax({
+            type: 'POST',
+            dataType:"json",
+            url: '<?php echo base_url(); ?>login/loginAjaxSendOtp',
+            data: {userEmail:userEmail,userPassword:userPassword},
+            success: function(data) {
+            	console.log(data);
+         	}
+        });
+      }
+   }
+   
+</script>
+
