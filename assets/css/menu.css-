@@ -1,0 +1,54 @@
+.main_menu { background: #f0f0f0; margin-top: 30px; padding: 10px 0px; }  
+#my_menu ul { list-style: none; padding: 0px; text-align: center; margin: 0px; }  
+#my_menu ul li { list-style: none; display: inline-block; font-weight: 600;}  
+#my_menu ul li a { color: #fff; padding: 10px; display: block; font-size: 14px; letter-spacing: 1px; }
+#my_menu ul li a:hover { color: var(--color-pink)!important; }
+
+a{text-decoration: none;}
+
+.mega_menu { position: absolute; width: 100%; left: 0; display: none; background: #fbfbf3; padding:20px 0px!important;  z-index: 999;}
+.m_main:hover .mega_menu{display: block; animation: fadeInDown .9s;}
+.mega_menu ul {text-align: left;}
+.mega_menu ul li { display: block!important; text-align: left; font-weight: normal!important;} 
+.mega_menu ul li a { text-transform: capitalize!important; padding: 3px!important; font-weight: 400!important; font-size: 13px!important; }
+ul.mega_menu p { text-align: left; font-size: 15px; }
+ul.mega_menu p b {border-bottom:1px solid #000;}
+ul.mega_menu li a:after { content: ""; }
+.mobile_bt{display:none;}	
+
+.single_menu { position: absolute; width: 280px;  display: none; background: #fbfbf3; padding:20px 0px!important;  z-index: 999;}
+.m_main:hover .single_menu{display: block; animation: fadeInDown .9s; text-align: left!important;}
+
+.single_menu ul{position: absolute; width: 280px;  display: none; background: #fbfbf3;  padding:0px 0px!important; right: -280px; top: 0px;}
+.single_menu li:hover ul{display: block; animation: fadeInDown .9s; text-align: left!important; }
+ul.single_menu li { display: block; width: 100%; padding:0px; position: relative; font-weight: normal!important;}
+ul.single_menu {padding: 0px!important; }
+ul.single_menu li a { border-bottom: 1px solid #eae9e9; }
+
+
+.m_main a:after { content: "\f107"; font-family: 'FontAwesome'; font-weight: normal;  right: -2px; position:absolute;}  
+.m_main a { position: relative; }
+ul.single_menu li a:after { content: ""; }
+.sub_child:before { content: "\f105"!important; font-family: 'FontAwesome'; font-weight: normal;  right: 2px; position:absolute;}  
+
+.single_menu li a, .mega_menu li a{color:#000!important;}
+
+@media(max-width:768px){
+	
+.mobile_bt{display: inline-block; margin-right:20px;}	
+#my_menu ul li {display: block; }
+#my_menu ul {text-align: left;}
+#my_menu { position: absolute; background: #666; width: 100%; left: -100%; transition: left 0.7s ease; z-index:999; padding: 10px;}
+#my_menu.visible {left: 0%;transition: left 0.7s ease;}
+
+.m_main:hover .mega_menu {display: none;}
+.main_menu{padding:10px;}
+.logo img {width: 135px;}
+
+.mega_menu{position:relative;}
+.single_menu{position:relative; width: 100%;}
+.sub-show{display:block!important;}
+.single_menu ul { position: relative; width: 100%; display: none; background: #ffffff; border-top: 2px solid #ccc; padding: 0px 0px!important; right: 0; top: 0px; }
+a#sidebar-btn i {color: #ffffff;}
+
+}
