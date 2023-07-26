@@ -8,8 +8,7 @@ class MY_Controller extends CI_Controller {
 		ob_start();
 		ob_clean();
 		$this->perPage = 12;
-		
-		 
+				 
 		if(!$this->session->userdata('session_user_id_temp')){
 			$this->session->set_userdata('session_user_id_temp',session_id());
 		}
