@@ -1,0 +1,7 @@
+User-agent: *
+
+Disallow: /stylist-zone/dashboard
+Disallow: /stylist-zone/manage-profile
+Disallow: /stylist-zone/manage-portfolio
+
+Sitemap: https://www.stylebuddy.in/sitemap.xml
