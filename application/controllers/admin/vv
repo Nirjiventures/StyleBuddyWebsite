@@ -1,0 +1,243 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Blog extends CI_Controller {
+	
+	function __construct()
+	{
+        parent::__construct();
+        $this->load->library('session');
+        $this->load->model('admin/Dashboard_Model');
+        $this->logged_in();
+    }
+	
+	private function logged_in()
+	{
+        if (!$this->session->userdata('authenticated')) {
+            redirect('desk-login');
+        }
+    }
+    public function blogCategory()
+    {
+        $data['datas'] = $this->Dashboard_Model->common_all('blogCategory');
+	    $this->load->view('admin/template/header');
+	    $this->load->view('admin/blog/catView',$data);
+        $this->load->view('admin/template/footer');
+    }
+    public function blogCategoryForm()
+    {
+        $this->form_validation->set_rules('blogCategoryName', 'Blog Category Name', 'required|trim|is_unique[blogCategory.blogCategoryName]');
+	    $this->form_validation->set_rules('status', 'Status', 'required|trim');
+	    $this->form_validation->set_error_delimiters('<span class="text-danger mt-1">', '</span>');
+	    $this->form_validation->set_rules('is_unique', 'The %s entered is already in use');
+	    
+	    if($this->form_validation->run()) {
+	            
+	            if($_FILES['blogCategoryImage']['name'] !="") {
+    	         $config['upload_path'] = './upload/assets/images/'; 
+    	         $config['max_size'] = 1024;
+                 $config['allowed_types'] = 'jpg|jpeg|png'; 
+    	         $this->load->library('upload',$config);
+    	         $this->upload->initialize($config);
+    	         
+    	         if($this->upload->do_upload('blogCategoryImage')){
+                   $uploadImg = $this->upload->data(); 
+                   $data['blogCategoryImage'] = $uploadImg['file_name']; 
+    	          }  else {
+    	              $ierror = $this->upload->display_errors();
+    	               $this->session->set_flashdata('imgerror',$ierror);
+                       redirect('admin/add-blog-category','refresh');
+    	          }
+    	        }
+    	    
+    	        $data['blogCategoryName'] = $this->input->post('blogCategoryName'); 
+	            $data['status']  = $this->input->post('status');
+	            $data['created_at']  = date('d m Y h:i:s'); 
+	            $data['blogCategorySlug'] = url_title($data['blogCategoryName'], 'dash', true);
+	            
+	            $insert = $this->Dashboard_Model->common_insert($data,'blogCategory');
+	                        
+    	            if($insert) {
+    	                $this->session->set_flashdata('success','Blog Category Data Insert Successfully!!');
+                        redirect('admin/add-blog-category');
+    	            } else {
+    	                $this->session->set_flashdata('error','Something Went Wrong, try again!!');
+                        redirect('admin/add-blog-category');
+    	            }
+	            
+	        }else {
+                    $this->load->view('admin/template/header');
+                    $this->load->view('admin/blog/catForm');
+                    $this->load->view('admin/template/footer');
+	    }
+    }
+    public function blogCategoryEdit($id)
+    {
+            $data['datas'] = $this->Dashboard_Model->common_row($id,'blogCategory');
+	        $this->load->view('admin/template/header');
+	        $this->load->view('admin/blog/catEdit',$data);
+            $this->load->view('admin/template/footer');
+    }
+    public function blogCategoryUpdate()
+    {
+            $this->form_validation->set_rules('blogCategoryName', 'Blog Category Name', 'required|trim');
+    	    $this->form_validation->set_rules('status', 'Status', 'required|trim');
+    	    $this->form_validation->set_error_delimiters('<span class="text-danger mt-1">', '</span>');
+    	    $this->form_validation->set_rules('is_unique', 'The %s entered is already in use');
+	    
+	        if($this->form_validation->run()) {
+	            
+	            if($_FILES['blogCategoryImage']['name'] !="") {
+    	         $config['upload_path'] = './upload/assets/images/'; 
+    	         $config['max_size'] = 1024;
+                 $config['allowed_types'] = 'jpg|jpeg|png'; 
+    	         $this->load->library('upload',$config);
+    	         $this->upload->initialize($config);
+    	         
+    	         if($this->upload->do_upload('blogCategoryImage')){
+                   $uploadImg = $this->upload->data(); 
+                   $data['blogCategoryImage'] = $uploadImg['file_name']; 
+    	          }  else {
+    	               //$ierror = $this->upload->display_errors();
+    	               //$this->session->set_flashdata('imgerror',$ierror);
+                       //redirect('admin/add-blog-category','refresh');
+    	          }
+    	        } else {
+    	                 $data['blogCategoryImage'] = $this->input->post('old_img');
+    	             }
+    	                $id = $this->input->post('id');
+            	        $data['blogCategoryName'] = $this->input->post('blogCategoryName'); 
+        	            $data['status']  = $this->input->post('status');
+        	            $data['updated_at']  = date('d-m-Y h:i:s'); 
+        	            $data['blogCategorySlug'] = url_title($data['blogCategoryName'], 'dash', true);
+	            
+	                    $update = $this->Dashboard_Model->common_update($id,$data,'blogCategory');
+	                        
+        	            if($update) {
+        	                $this->session->set_flashdata('success','Blog Category Data Update Successfully!!');
+                            redirect('admin/blog-category');
+        	            } else {
+        	                $this->session->set_flashdata('error','Something Went Wrong, try again!!');
+                            redirect('admin/blog-category');
+        	            }
+	        } else {
+                    $this->load->view('admin/template/header');
+                    $this->load->view('admin/blog/catForm');
+                    $this->load->view('admin/template/footer');
+	      }
+   
+    }
+    public function blogCategoryDelete($id)
+    {
+        $delete = $this->Dashboard_Model->common_delete($id,'blogCategory');
+            if($delete) {
+                $this->session->set_flashdata('success','Category Data Update Successfully!!');
+                redirect('admin/blog-category');
+            } else {
+                $this->session->set_flashdata('error','Something Went Wrong, try again!!');
+                redirect('admin/blog-category');
+            }
+    }
+    public function blogCategoryStatusUpdate()
+    {
+        $id = $this->input->post('id');
+	    $status = $this->input->post('status'); $data = ['status'=>$status];
+	    $update = $this->Dashboard_Model->common_update($id,$data,'blogCategory');
+	    echo $update;
+    }
+    
+    // BLOGS CODE
+    public function blogs()
+    {
+        $data['datas'] = $this->Dashboard_Model->common_all('blog');
+	    $this->load->view('admin/template/header');
+	    $this->load->view('admin/blog/blogView',$data);
+        $this->load->view('admin/template/footer');
+    }
+    public function blogsForm()
+    {
+        $this->form_validation->set_rules('category_id', 'Blog Category', 'required|trim');
+	    $this->form_validation->set_rules('blogTitle', 'Blog title', 'required|trim|is_unique[blog.blogTitle]');
+	    $this->form_validation->set_rules('shortData', 'Short Description', 'required|trim');
+	    $this->form_validation->set_rules('longData', 'Long Description', 'required|trim');
+	    $this->form_validation->set_rules('author', 'Author', 'required|trim');
+	    $this->form_validation->set_rules('publishDate', 'Publish Date', 'required|trim');
+	    $this->form_validation->set_rules('status', 'Status', 'required|trim');
+	    $this->form_validation->set_error_delimiters('<span class="text-danger mt-1">', '</span>');
+	    $this->form_validation->set_rules('is_unique', 'The %s entered is already in use');
+	   // print_r($_POST); 
+	    if($this->form_validation->run()) {
+	            
+	            if($_FILES['blogImage']['name'] !="") {
+    	         $config['upload_path'] = './upload/assets/images/blog/'; 
+    	         $config['max_size'] = 1024;
+                 $config['allowed_types'] = 'jpg|jpeg|png'; 
+    	         $this->load->library('upload',$config);
+    	         $this->upload->initialize($config);
+    	         
+    	         if($this->upload->do_upload('blogImage')){
+                   $uploadImg = $this->upload->data(); 
+                   $data['blogImage'] = $uploadImg['file_name']; 
+                   //print_r($data);exit;
+    	          }  else {
+    	              $ierror = $this->upload->display_errors();
+    	               $this->session->set_flashdata('imgerror',$ierror);
+                       redirect('admin/add-blog','refresh');
+    	          }
+    	        }
+    	        $data['category_id'] = $this->input->post('category_id');
+    	        $data['blogTitle'] = $this->input->post('blogTitle'); 
+    	        $data['shortData'] = $this->input->post('shortData'); 
+    	        $data['longData'] = $this->input->post('longData'); 
+    	        $data['author'] = $this->input->post('author'); 
+    	        $data['publishDate'] = $this->input->post('publishDate');
+	            $data['status']  = $this->input->post('status');
+	            $data['created_at']  = date('d m Y h:i:s'); 
+	            $data['blogSlug'] = url_title($data['blogTitle'], 'dash', true);
+	            //print_r($data); exit;
+	            $insert = $this->Dashboard_Model->common_insert($data,'blog');
+    	            if($insert) {
+    	                $this->session->set_flashdata('success','Blog Data Insert Successfully!!');
+                        redirect('admin/add-blog');
+    	            } else {
+    	                $this->session->set_flashdata('error','Something Went Wrong, try again!!');
+                        redirect('admin/add-blog');
+    	            }
+	        }else {
+                    $data['val'] = $this->db->get_where('blogCategory',['status' => 1])->result();
+                    $this->load->view('admin/template/header');
+                    $this->load->view('admin/blog/blogForm',$data);
+                    $this->load->view('admin/template/footer');
+	    }
+    }
+    public function blogsEdit($id)
+    {
+            $data['datas'] = $this->Dashboard_Model->common_row($id,'blogCategory');
+	        $this->load->view('admin/template/header');
+	        $this->load->view('admin/blog/catEdit',$data);
+            $this->load->view('admin/template/footer');
+    }
+    public function blogsUpdate()
+    {
+        
+    }
+    public function blogsDelete($id)
+    {
+        $delete = $this->Dashboard_Model->common_delete($id,'blogCategory');
+            if($delete) {
+                $this->session->set_flashdata('success','Category Data Update Successfully!!');
+                redirect('admin/blog-category');
+            } else {
+                $this->session->set_flashdata('error','Something Went Wrong, try again!!');
+                redirect('admin/blog-category');
+            }
+    }
+    public function blogsStatusUpdate()
+    {
+        $id = $this->input->post('id');
+	    $status = $this->input->post('status'); $data = ['status'=>$status];
+	    $update = $this->Dashboard_Model->common_update($id,$data,'blog');
+	    echo $update;
+    }
+   
+}    
